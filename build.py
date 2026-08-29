@@ -7,6 +7,26 @@ once the page is served on its own, and the body content is already plain HTML.
 """
 import re, sys, pathlib
 
+# The canvas was drawn as a single site with /projects/* paths, but each page
+# is served on its own host. Absolute URLs are the only form that works from
+# every one of them. Longest prefix first so /projects/blog wins over /projects.
+LINKS = [
+    ("/projects/blog",     "https://blog.genuinebasil.dev/"),
+    ("/projects/marginal", "https://marginal.genuinebasil.dev/"),
+    ("/projects/cairn",    "https://cairn.genuinebasil.dev/"),
+    # No /projects index exists; the apex lists the systems inline.
+    ("/projects",          "https://genuinebasil.dev/#systems"),
+    ("/",                  "https://genuinebasil.dev/"),
+]
+
+
+def retarget(html: str) -> str:
+    """Point site-root hrefs at the host that actually serves them."""
+    for path, url in LINKS:
+        html = html.replace(f'href="{path}"', f'href="{url}"')
+    return html
+
+
 def convert(src: pathlib.Path, title: str, desc: str) -> str:
     raw = src.read_text(encoding="utf-8")
 
@@ -23,6 +43,8 @@ def convert(src: pathlib.Path, title: str, desc: str) -> str:
 
     if "<x-dc" in body or "support.js" in body:
         sys.exit(f"{src}: unexpected canvas markup left in body")
+
+    body = retarget(body)
 
     return f"""<!doctype html>
 <html lang="en">
