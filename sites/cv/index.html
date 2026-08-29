@@ -149,6 +149,13 @@ html, body { max-width: 100%; overflow-x: hidden; }
 /* On the narrowest screens the rail's third group — the colour legend on the
    landing page, the phase counter on a project page — is decoration competing
    with navigation for a whole row. Drop it before dropping any link. */
+/* The collaborator name tags sit beside a caret at a line end. On the narrowest
+   screens there is no line short enough for the tag to fit inside the mockup, so
+   the tag goes and the caret keeps blinking. */
+@media (max-width: 560px) {
+  .cur-tag { display: none; }
+}
+
 @media (max-width: 560px) {
   [style*="height:48px"] > div:nth-child(3) {
     display: none !important;
