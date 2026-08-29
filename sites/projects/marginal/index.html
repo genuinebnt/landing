@@ -71,19 +71,48 @@ html, body { max-width: 100%; overflow-x: hidden; }
     grid-template-columns: 1fr !important;
   }
 
-  /* The sticky status rail is pinned to 48px while its link group is set to
-     wrap, so the wrapped rows overlap the wordmark. Let the rail grow. */
+  /* ── the status rail ──────────────────────────────────────────────────
+     Three groups: [0] wordmark, [1] six nav links, [2] a decorative status
+     readout. The rail is pinned to 48px with its link group set to wrap, so
+     on a phone the wrapped rows overlap the wordmark. Let it grow, and give
+     each group its own row rather than letting them reflow into each other. */
   [style*="height:48px"] {
     height: auto !important;
     flex-wrap: wrap !important;
-    row-gap: 6px !important;
-    padding-top: 8px !important;
-    padding-bottom: 8px !important;
+    row-gap: 2px !important;
+    padding-top: 9px !important;
+    padding-bottom: 9px !important;
+    align-items: flex-start !important;
+  }
+  [style*="height:48px"] > div {
+    flex: 0 0 100% !important;
+  }
+  /* Tap targets. 11px links 6px apart are not touchable; this gets each to
+     roughly 32px of vertical hit area without changing the type size much. */
+  [style*="height:48px"] a {
+    padding: 5px 0 !important;
+    font-size: 11.5px !important;
+  }
+  /* The artboard sets a single `gap`, which applies to rows too — combined with
+     the tap padding that opened a large hole between wrapped link rows. Split
+     the two axes: tight rows, comfortable columns. */
+  [style*="height:48px"] > div:nth-child(2) {
+    row-gap: 0 !important;
+    column-gap: 13px !important;
   }
 
   /* Fixed two-up rows (icon gutter + content) read better stacked. */
   [style*="grid-template-columns:64px 1fr auto"] {
     grid-template-columns: 1fr !important;
+  }
+}
+
+/* On the narrowest screens the rail's third group — the colour legend on the
+   landing page, the phase counter on a project page — is decoration competing
+   with navigation for a whole row. Drop it before dropping any link. */
+@media (max-width: 560px) {
+  [style*="height:48px"] > div:nth-child(3) {
+    display: none !important;
   }
 }
 
