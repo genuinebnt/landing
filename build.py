@@ -34,6 +34,54 @@ PAGES = [
 ]
 
 
+# Injected into every page's <head>, after the artboard's own <helmet> styles so
+# it wins on order as well as specificity. The canvas composes at desktop width
+# and emits inline style="" attributes, so each override needs !important to
+# beat them. Kept here rather than in the artboards because a re-export from the
+# canvas would drop anything hand-added there.
+RESPONSIVE_CSS = """
+<style>
+/* Never let the page itself scroll sideways; wide tables scroll in their own
+   wrapper, which the artboards already mark overflow-x:auto. */
+html, body { max-width: 100%; overflow-x: hidden; }
+
+@media (max-width: 760px) {
+  /* auto-fit only drops empty tracks — it never shrinks one below its floor,
+     so a minmax(420px,1fr) track stays 420px on a 375px phone and everything
+     inside it gets clipped. Collapse these to a single column. */
+  [style*="minmax(420px"], [style*="minmax(340px"], [style*="minmax(300px"],
+  [style*="minmax(280px"], [style*="minmax(260px"], [style*="minmax(230px"],
+  [style*="minmax(150px"],
+  [style*="repeat(3, minmax(0, 1fr))"], [style*="repeat(3,minmax(0,1fr))"],
+  [style*="repeat(2, minmax(0, 1fr))"], [style*="repeat(2,minmax(0,1fr))"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* The sticky status rail is pinned to 48px while its link group is set to
+     wrap, so the wrapped rows overlap the wordmark. Let the rail grow. */
+  [style*="height:48px"] {
+    height: auto !important;
+    flex-wrap: wrap !important;
+    row-gap: 6px !important;
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+  }
+
+  /* Fixed two-up rows (icon gutter + content) read better stacked. */
+  [style*="grid-template-columns:64px 1fr auto"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Between phone and desktop a three-up grid is cramped but two fits. */
+@media (min-width: 761px) and (max-width: 1024px) {
+  [style*="repeat(3, minmax(0, 1fr))"], [style*="repeat(3,minmax(0,1fr))"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+</style>
+"""
+
 def convert(src: pathlib.Path, title: str, desc: str) -> str:
     raw = src.read_text(encoding="utf-8")
 
@@ -63,6 +111,7 @@ def convert(src: pathlib.Path, title: str, desc: str) -> str:
 <meta property="og:type" content="website">
 <link rel="icon" href="data:,">
 {head}
+{RESPONSIVE_CSS}
 </head>
 <body>
 {body}
