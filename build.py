@@ -169,6 +169,21 @@ html, body { max-width: 100%; overflow-x: hidden; }
 </style>
 """
 
+APEX = "https://genuinebasil.dev"
+
+# Pages served from their own subdomain rather than a path on the apex. Their
+# root-relative links point at the apex, so they have to be absolutised — on
+# another origin "/" is that origin's root, not this site's.
+OWN_HOST = {
+    "cv": "https://cv.genuinebasil.dev",
+}
+
+
+def absolutise(html: str) -> str:
+    """Point root-relative hrefs at the apex, for pages on another origin."""
+    return html.replace('href="/', f'href="{APEX}/')
+
+
 def convert(src: pathlib.Path, title: str, desc: str, slug: str) -> str:
     raw = src.read_text(encoding="utf-8")
 
@@ -190,6 +205,12 @@ def convert(src: pathlib.Path, title: str, desc: str, slug: str) -> str:
     slug_url = "" if slug == "." else slug
     og = "landing" if slug == "." else slug.replace("/", "-")
 
+    if slug in OWN_HOST:
+        canonical = OWN_HOST[slug] + "/"
+        body = absolutise(body)
+    else:
+        canonical = f"{APEX}/{slug_url}"
+
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -200,7 +221,8 @@ def convert(src: pathlib.Path, title: str, desc: str, slug: str) -> str:
 <meta property="og:title" content="{title}">
 <meta property="og:description" content="{desc}">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://genuinebasil.dev/{slug_url}">
+<meta property="og:url" content="{canonical}">
+<link rel="canonical" href="{canonical}">
 <meta property="og:image" content="https://genuinebasil.dev/og/{og}.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
