@@ -83,7 +83,7 @@
   <div style="position:sticky; top:0; z-index:20; background:rgba(10,12,15,.9); border-bottom:1px solid #191E25;">
     <div style="display:flex; align-items:center; justify-content:space-between; gap:24px; height:48px; padding:0 clamp(20px,4vw,56px); font-family:'JetBrains Mono',ui-monospace,monospace; font-size:11px; color:#626B74;">
       <div style="display:flex; align-items:center; gap:11px;">
-        <span class="k-bg pulse" style="width:7px; height:7px; border-radius:50%; display:block;"></span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" role="img" aria-label="genuinebasil.dev" style="flex:none; display:block;"><path d="M12 12 6 6.6" stroke="#9C87ED" stroke-width="1.1" stroke-linecap="round" opacity=".5"/><path d="M12 12l6-5.4" stroke="#E0985A" stroke-width="1.1" stroke-linecap="round" opacity=".5"/><path d="M12 12v6.9" stroke="#3FC79A" stroke-width="1.1" stroke-linecap="round" opacity=".5"/><circle cx="6" cy="6.6" r="2.2" fill="#9C87ED"/><circle cx="18" cy="6.6" r="2.2" fill="#E0985A"/><circle cx="12" cy="18.9" r="2.2" fill="#3FC79A"/><circle class="pulse" cx="12" cy="12" r="3" fill="#0A0C0F" stroke="#E7EAEC" stroke-width="1.5"/></svg>
         <span style="color:#9AA3AC; letter-spacing:.06em;">genuinebasil.dev</span>
       </div>
       <div style="display:flex; align-items:center; gap:clamp(9px,1.5vw,18px); flex-wrap:wrap;">
@@ -123,7 +123,7 @@
 
     <div class="rise" style="animation-delay:.16s; border:1px solid #1D232A; border-radius:10px; background:#0C1015; padding:22px; box-shadow:0 30px 70px -34px rgba(0,0,0,.95);">
       <div style="display:flex; justify-content:space-between; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.16em; color:#4E5761; margin-bottom:10px;">
-        <span>SERVICE TOPOLOGY</span><span class="k-c">3 SYSTEMS &middot; 20 SERVICES</span>
+        <span>SERVICE TOPOLOGY</span><span class="k-c">3 SYSTEMS &middot; 13 CONTAINERS</span>
       </div>
       <svg viewBox="0 0 480 350" width="100%" height="330" fill="none" font-family="'JetBrains Mono',monospace">
         <path class="edge" d="M240 172 L106 76" stroke="#9C87ED" stroke-width="1.4"/>
@@ -135,7 +135,7 @@
         <circle class="k-st" cx="240" cy="172" r="29" fill="none" stroke-width="1.6"/>
         <text class="k-fl" x="240" y="178" font-size="17" text-anchor="middle" font-weight="700" letter-spacing=".5">gb</text>
         <text x="240" y="222" fill="#8B93A0" font-size="10.5" text-anchor="middle" letter-spacing="1">genuinebasil.dev</text>
-        <g class="bob"><rect x="26" y="54" width="160" height="46" rx="5" fill="#12101A" stroke="#9C87ED" stroke-width="1.2"/><text x="42" y="75" fill="#C4B4F5" font-size="12.5">marginal</text><text x="42" y="90" fill="#6C6382" font-size="9">11 services &middot; crdt</text><circle class="pulse" cx="170" cy="76" r="3.5" fill="#9C87ED"/></g>
+        <g class="bob"><rect x="26" y="54" width="160" height="46" rx="5" fill="#12101A" stroke="#9C87ED" stroke-width="1.2"/><text x="42" y="75" fill="#C4B4F5" font-size="12.5">marginal</text><text x="42" y="90" fill="#6C6382" font-size="9">6 services &middot; live</text><circle class="pulse" cx="170" cy="76" r="3.5" fill="#9C87ED"/></g>
         <g class="bob" style="animation-delay:-1.3s"><rect x="316" y="90" width="150" height="46" rx="5" fill="#171208" stroke="#E0985A" stroke-width="1.2"/><text x="332" y="111" fill="#EFC094" font-size="12.5">cairn</text><text x="332" y="126" fill="#84674A" font-size="9">7 layers &middot; query engine</text><circle class="pulse" style="animation-delay:-.8s" cx="450" cy="112" r="3.5" fill="#E0985A"/></g>
         <g class="bob" style="animation-delay:-2.6s"><rect x="190" y="276" width="152" height="46" rx="5" fill="#08150F" stroke="#3FC79A" stroke-width="1.2"/><text x="206" y="297" fill="#8AE3C4" font-size="12.5">blog</text><text x="206" y="312" fill="#43775F" font-size="9">shipped &middot; db-backed cms</text><circle class="pulse" style="animation-delay:-1.6s" cx="326" cy="298" r="3.5" fill="#3FC79A"/></g>
       </svg>
@@ -145,8 +145,8 @@
   <!-- now band -->
   <div style="position:relative; padding:0 clamp(20px,4vw,56px) clamp(36px,5vw,64px);">
     <div class="rise" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:1px; background:#191E25; border:1px solid #191E25; border-radius:9px; overflow:hidden;">
-      <div style="background:#0C1015; padding:22px 24px; display:flex; flex-direction:column; gap:6px;"><div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.2em; color:#4E5761;">NOW BUILDING</div><div style="font-size:19px; font-weight:600; color:#E0985A;">cairn &mdash; layer 2</div><div style="font-size:12.5px; color:#8B93A0;">join-order DP &amp; the cost model</div></div>
-      <div style="background:#0C1015; padding:22px 24px; display:flex; flex-direction:column; gap:6px;"><div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.2em; color:#4E5761;">LAST SHIPPED</div><div style="font-size:19px; font-weight:600; color:#3FC79A;">hexagonal refactor</div><div style="font-size:12.5px; color:#8B93A0;">blog &mdash; domain / app / infra closed</div></div>
+      <div style="background:#0C1015; padding:22px 24px; display:flex; flex-direction:column; gap:6px;"><div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.2em; color:#4E5761;">NOW BUILDING</div><div style="font-size:19px; font-weight:600; color:#E0985A;">marginal &mdash; the Rust port</div><div style="font-size:12.5px; color:#8B93A0;">six services, ported module by module</div></div>
+      <div style="background:#0C1015; padding:22px 24px; display:flex; flex-direction:column; gap:6px;"><div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.2em; color:#4E5761;">LAST SHIPPED</div><div style="font-size:19px; font-weight:600; color:#3FC79A;">marginal, in production</div><div style="font-size:12.5px; color:#8B93A0;">six services, four databases, thirteen containers</div></div>
       <div style="background:#0C1015; padding:22px 24px; display:flex; flex-direction:column; gap:6px;"><div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.2em; color:#4E5761;">READING</div><div style="font-size:19px; font-weight:600; color:#9C87ED;">CRDT literature</div><div style="font-size:12.5px; color:#8B93A0;">ahead of marginal phase 3</div></div>
       <div style="background:#0C1015; padding:22px 24px; display:flex; flex-direction:column; gap:6px;"><div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.2em; color:#4E5761;">OPEN TO</div><div class="k-c" style="font-size:19px; font-weight:600;">Rust roles</div><div style="font-size:12.5px; color:#8B93A0;">storage &middot; execution &middot; coordination</div></div>
     </div>
@@ -192,7 +192,7 @@
         <div style="display:flex; flex-direction:column; gap:6px; max-width:320px;">
           <div style="display:flex; align-items:baseline; gap:11px; flex-wrap:wrap;"><span style="font-size:23px; font-weight:600; letter-spacing:-.01em;">marginal</span><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#9C87ED; border:1px solid #3B3163; border-radius:3px; padding:2px 7px;">DESIGNED</span></div>
           <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#6C6382;">marginal.genuinebasil.dev</span>
-          <div style="font-size:13px; color:#8B93A0; line-height:1.55;">Real-time collaborative markdown with no merge-conflict dialog, ever. 22 phases, 11 services.</div>
+          <div style="font-size:13px; color:#8B93A0; line-height:1.55;">Real-time collaborative markdown with no merge-conflict dialog, ever. 22 phases, six services, running in production.</div>
         </div>
         <div style="display:flex; flex-direction:column; gap:8px;">
           <div class="bar" style="animation-delay:.2s; height:28px; width:13%; border-radius:3px; background:linear-gradient(90deg,#4B3E80,#9C87ED); display:flex; align-items:center; padding-left:13px; font-family:'JetBrains Mono',monospace; font-size:10.5px; color:#100C1C; font-weight:600; letter-spacing:.08em;">PHASE 0</div>

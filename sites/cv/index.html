@@ -198,6 +198,27 @@ html, body { max-width: 100%; overflow-x: hidden; }
 }
 </style>
 
+
+<style>
+@property --mglow-rgb { syntax: "<number>#"; inherits: true; initial-value: 224,152,90 }
+.mglow {
+  position: absolute; top: 0; left: 0;
+  width: 820px; height: 820px; margin: -410px 0 0 -410px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(var(--mglow-rgb), .17), transparent 68%);
+  /* transform only — the paint never changes, so the compositor does the work */
+  will-change: transform;
+}
+@keyframes mglow-rekey {
+  0%,26%   { --mglow-rgb: 224,152,90 }
+  33%,59%  { --mglow-rgb: 156,135,237 }
+  66%,92%  { --mglow-rgb: 63,199,154 }
+  100%     { --mglow-rgb: 224,152,90 }
+}
+.mglow-rekey { animation: mglow-rekey 15s ease-in-out infinite; }
+</style>
+
 </head>
 <body>
 <div style="width:100%; box-sizing:border-box; background:#0A0C0F; color:#E7EAEC; font-family:'Space Grotesk',ui-sans-serif,system-ui,sans-serif; position:relative; overflow-x:clip;">
@@ -209,7 +230,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
   <div style="position:sticky; top:0; z-index:20; background:rgba(10,12,15,.9); border-bottom:1px solid #191E25;">
     <div style="display:flex; align-items:center; justify-content:space-between; gap:24px; height:48px; padding:0 clamp(20px,4vw,56px); font-family:'JetBrains Mono',ui-monospace,monospace; font-size:11px; color:#626B74;">
       <div style="display:flex; align-items:center; gap:11px;">
-        <span class="k-bg pulse" style="width:7px; height:7px; border-radius:50%; display:block;"></span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" role="img" aria-label="genuinebasil.dev" style="flex:none; display:block;"><path d="M12 12 6 6.6" stroke="#9C87ED" stroke-width="1.1" stroke-linecap="round" opacity=".5"/><path d="M12 12l6-5.4" stroke="#E0985A" stroke-width="1.1" stroke-linecap="round" opacity=".5"/><path d="M12 12v6.9" stroke="#3FC79A" stroke-width="1.1" stroke-linecap="round" opacity=".5"/><circle cx="6" cy="6.6" r="2.2" fill="#9C87ED"/><circle cx="18" cy="6.6" r="2.2" fill="#E0985A"/><circle cx="12" cy="18.9" r="2.2" fill="#3FC79A"/><circle class="pulse" cx="12" cy="12" r="3" fill="#0A0C0F" stroke="#E7EAEC" stroke-width="1.5"/></svg>
         <a class="lab" href="https://genuinebasil.dev/" style="color:#9AA3AC; letter-spacing:.06em;">genuinebasil.dev</a>
         <span style="color:#262C33;">/</span>
         <span class="k-c" style="letter-spacing:.06em;">cv</span>
@@ -458,5 +479,42 @@ html, body { max-width: 100%; overflow-x: hidden; }
     </div>
   </div>
 </div>
+
+<script>
+(function () {
+  var grid = document.querySelector('.gridpan');
+  if (!grid || !grid.parentNode) return;
+
+  var el = document.createElement('div');
+  el.className = 'mglow mglow-rekey';
+  el.setAttribute('aria-hidden', 'true');
+  el.style.setProperty('--mglow-rgb', '224,152,90');
+  // Inserted before the grid so the grid paints over it. The artboard's own
+  // blobs sit after the grid and stay there — this is the one that goes behind.
+  grid.parentNode.insertBefore(el, grid);
+
+  // Start where the page's own accent already sits, so there is no jump before
+  // the pointer moves, and none at all on a touch device.
+  var tx = window.innerWidth * 0.56, ty = 240;
+  var x = tx, y = ty, raf = 0;
+
+  function frame() {
+    // Trailing lerp: the glow arrives a beat after the cursor, which reads as
+    // weight rather than something glued to the pointer.
+    x += (tx - x) * 0.075;
+    y += (ty - y) * 0.075;
+    el.style.transform = 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0)';
+    raf = (Math.abs(tx - x) > 0.5 || Math.abs(ty - y) > 0.5) ? requestAnimationFrame(frame) : 0;
+  }
+  function moveTo(px, py) {
+    tx = px; ty = py + window.scrollY;   // page coordinates, not viewport
+    if (!raf) raf = requestAnimationFrame(frame);
+  }
+
+  addEventListener('pointermove', function (e) { moveTo(e.clientX, e.clientY); }, { passive: true });
+  el.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)';
+})();
+</script>
+
 </body>
 </html>

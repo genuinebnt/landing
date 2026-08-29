@@ -31,7 +31,7 @@
        shape of someone typing — and ch units keep it on the grid at any width.
        Rightward only, and from a line end, so the caret and its name tag never
        cross a glyph. */
-    @keyframes cstep{ 0%,30%{transform:translateX(0)} 33%,63%{transform:translateX(2ch)} 66%,96%{transform:translateX(3ch)} 100%{transform:translateX(0)} }
+    @keyframes cstep{ 0%,28%{transform:translateX(0)} 30%,58%{transform:translateX(3ch)} 60%,88%{transform:translateX(6ch)} 90%,100%{transform:translateX(1ch)} }
     .rise{animation:rise .8s cubic-bezier(.22,1,.36,1) both}
     .bar{transform-origin:left;animation:grow 1.15s cubic-bezier(.22,1,.36,1) both}
     .rule{transform-origin:left;animation:grow 1.1s cubic-bezier(.22,1,.36,1) both}
@@ -69,7 +69,7 @@
   <div style="position:sticky; top:0; z-index:20; background:rgba(10,12,15,.9); border-bottom:1px solid #191E25;">
     <div style="display:flex; align-items:center; justify-content:space-between; gap:24px; height:48px; padding:0 clamp(20px,4vw,56px); font-family:'JetBrains Mono',ui-monospace,monospace; font-size:11px; color:#626B74;">
       <div style="display:flex; align-items:center; gap:10px;">
-        <a class="lab" href="/" style="color:#9AA3AC;">genuinebasil.dev</a><span style="color:#333B44;">/</span><a class="lab" href="/projects" style="color:#626B74;">projects</a><span style="color:#333B44;">/</span><span style="color:#9C87ED;">marginal</span>
+        <a href="/" style="display:flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" role="img" aria-label="genuinebasil.dev" style="flex:none; display:block;"><path d="M12 12 6 6.6" stroke="#9C87ED" stroke-width="1.1" stroke-linecap="round" opacity=".5"/><path d="M12 12l6-5.4" stroke="#E0985A" stroke-width="1.1" stroke-linecap="round" opacity=".5"/><path d="M12 12v6.9" stroke="#3FC79A" stroke-width="1.1" stroke-linecap="round" opacity=".5"/><circle cx="6" cy="6.6" r="2.2" fill="#9C87ED"/><circle cx="18" cy="6.6" r="2.2" fill="#E0985A"/><circle cx="12" cy="18.9" r="2.2" fill="#3FC79A"/><circle class="pulse" cx="12" cy="12" r="3" fill="#0A0C0F" stroke="#E7EAEC" stroke-width="1.5"/></svg></a><a class="lab" href="/" style="color:#9AA3AC;">genuinebasil.dev</a><span style="color:#333B44;">/</span><a class="lab" href="/projects" style="color:#626B74;">projects</a><span style="color:#333B44;">/</span><span style="color:#9C87ED;">marginal</span>
       </div>
       <div style="display:flex; gap:clamp(8px,1.4vw,18px); flex-wrap:wrap;"><a class="lab" href="#depth" style="color:#626B74;">depth</a><a class="lab" href="#architecture" style="color:#626B74;">architecture</a><a class="lab" href="#comms" style="color:#626B74;">comms</a><a class="lab" href="#phases" style="color:#626B74;">phases</a><a class="lab" href="#stack" style="color:#626B74;">stack</a><a class="lab" href="#decisions" style="color:#626B74;">decisions</a></div>
       <div style="display:flex; align-items:center; gap:8px;"><span class="pulse" style="width:7px;height:7px;border-radius:50%;background:#9C87ED;display:block;"></span><span>LIVE &middot; 6 SERVICES</span></div>
@@ -91,18 +91,18 @@
         <a class="chip" href="#decisions" style="display:inline-flex; align-items:center; gap:9px; height:48px; padding:0 21px; border-radius:5px; border:1px solid #262C33; color:#9AA3AC; font-size:14px; font-weight:500;">The decisions<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v13"/><path d="m5 12 7 7 7-7"/></svg></a>
       </div>
       <div style="border-left:2px solid #9C87ED; background:rgba(156,135,237,.06); padding:13px 18px; border-radius:0 5px 5px 0; max-width:36rem; margin-top:6px;">
-        <p style="margin:0; font-size:13px; line-height:1.7; color:#9AA3AC;"><strong style="color:#C4B4F5;">Status: running in production.</strong> Six Go services behind a gateway, four Postgres instances, NATS and Redis &mdash; thirteen containers, live at marginal.genuinebasil.dev. The repository also holds the architecture, the data model, eleven ADRs, and the roadmap for the Rust port now under way.</p>
+        <p style="margin:0; font-size:13px; line-height:1.7; color:#9AA3AC;"><strong style="color:#C4B4F5;">Status: running in production.</strong> Six Rust services behind a gateway, four Postgres instances, NATS and Redis &mdash; thirteen containers, live at marginal.genuinebasil.dev. The repository also holds the architecture, the data model, eleven ADRs, and the roadmap for the Rust port now under way.</p>
       </div>
     </div>
 
     <div class="rise" style="animation-delay:.16s; border:1px solid #1D232A; border-radius:10px; background:#0C1015; padding:22px; box-shadow:0 30px 70px -34px rgba(0,0,0,.95);">
       <div style="display:flex; justify-content:space-between; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.16em; color:#4E5761; margin-bottom:12px;"><span>THE OP LOG IS THE TRUTH</span><span style="color:#9C87ED;">3 ACTORS</span></div>
-      <div style="position:relative; border:1px solid #1D232A; border-radius:6px; background:#0F1012; padding:20px 22px; min-height:170px; font-family:'JetBrains Mono',monospace; font-size:12.5px; line-height:2; color:#8C8880;">
+      <div style="position:relative; border:1px solid #1D232A; border-radius:6px; background:#0F1012; padding:30px 22px 20px; min-height:190px; font-family:'JetBrains Mono',monospace; font-size:12.5px; line-height:2.6; color:#8C8880;">
         <div>the log <span style="color:#E7EAEC;">is</span> the source of truth</div>
         <div>block rows are a <span style="color:#C4B4F5;">projection</span></div>
         <div>undo is a new op, not a rollback<span class="caret" style="color:#3FCFA8;">|</span></div>
-        <div class="cur" style="position:absolute; top:47px; left:calc(22px + 27ch); display:flex; align-items:center;"><div class="cur-bar" style="width:2px; height:20px; flex:none; background:#9C87ED;"></div><div class="cur-tag" style="font-size:9px; font-weight:600; padding:2px 6px; border-radius:3px; white-space:nowrap; line-height:1.5; margin-left:3px; background:#9C87ED; color:#150C2A;">ana</div></div>
-        <div class="cur" style="animation-delay:-3.7s; position:absolute; top:22px; left:calc(22px + 30ch); display:flex; align-items:center;"><div class="cur-bar" style="width:2px; height:20px; flex:none; background:#E0985A;"></div><div class="cur-tag" style="font-size:9px; font-weight:600; padding:2px 6px; border-radius:3px; white-space:nowrap; line-height:1.5; margin-left:3px; background:#E0985A; color:#241004;">sam</div></div>
+        <div class="cur" style="position:absolute; top:53px; left:calc(22px + 14ch); display:flex; flex-direction:column; align-items:flex-start;"><div class="cur-tag" style="font-size:8.5px; font-weight:600; padding:1px 5px; border-radius:2px; white-space:nowrap; line-height:1.5; margin-bottom:2px; background:#9C87ED; color:#150C2A;">ana</div><div class="cur-bar" style="width:2px; height:19px; flex:none; background:#9C87ED;"></div></div>
+        <div class="cur" style="animation-delay:-3.7s; position:absolute; top:20px; left:calc(22px + 10ch); display:flex; flex-direction:column; align-items:flex-start;"><div class="cur-tag" style="font-size:8.5px; font-weight:600; padding:1px 5px; border-radius:2px; white-space:nowrap; line-height:1.5; margin-bottom:2px; background:#E0985A; color:#241004;">sam</div><div class="cur-bar" style="width:2px; height:19px; flex:none; background:#E0985A;"></div></div>
       </div>
       <div style="display:flex; flex-direction:column; gap:3px; margin-top:12px; font-family:'JetBrains Mono',monospace; font-size:10.5px;">
         <div style="display:flex; gap:10px; padding:5px 10px; border-left:2px solid #3FC79A; background:#0D1116;"><span style="color:#4E5761; width:34px;">4029</span><span style="color:#3FC79A;">ins</span><span style="color:#8B93A0;">&ldquo;projection&rdquo; @ 128</span></div>
@@ -252,7 +252,7 @@
 
         <rect x="400" y="102" width="320" height="50" rx="5" fill="#12101A" stroke="#9C87ED" stroke-width="1.3"/>
         <text x="560" y="124" fill="#C4B4F5" font-size="13" text-anchor="middle">api-gateway</text>
-        <text x="560" y="141" fill="#6C6382" font-size="9" text-anchor="middle">RS256 verify &middot; rate limit &middot; circuit breaker &middot; WS hash routing</text>
+        <text x="560" y="141" fill="#6C6382" font-size="9" text-anchor="middle">RS256 verify &middot; rate limit &middot; circuit breaker &middot; WS routing</text>
 
         <g><rect x="16" y="254" width="160" height="76" rx="5" fill="#0F141A" stroke="#3D4650" stroke-width="1.2"/><text x="96" y="276" fill="#E7EAEC" font-size="11.5" text-anchor="middle">document</text><text x="96" y="294" fill="#626B74" font-size="8.5" text-anchor="middle">pages &middot; blocks &middot; tree</text><text x="96" y="308" fill="#626B74" font-size="8.5" text-anchor="middle">outbox &middot; LTREE</text></g>
         <g class="bob"><rect x="202" y="254" width="160" height="76" rx="5" fill="#12101A" stroke="#9C87ED" stroke-width="1.4"/><text x="282" y="276" fill="#C4B4F5" font-size="11.5" text-anchor="middle">collaboration</text><text x="282" y="294" fill="#6C6382" font-size="8.5" text-anchor="middle">CRDT &middot; rope &middot; WAL</text><text x="282" y="308" fill="#E0985A" font-size="8.5" text-anchor="middle">[stateful]</text><circle class="pulse" cx="348" cy="266" r="3" fill="#9C87ED"/></g>
@@ -313,7 +313,7 @@
         <div style="display:grid; grid-template-columns:64px 1fr auto; gap:18px; align-items:center; padding:18px 22px; border-bottom:1px solid #191E25;">
           <div style="font-family:'JetBrains Mono',monospace; font-size:19px; font-weight:600; color:#9C87ED;">01</div>
           <div style="display:flex; flex-direction:column; gap:3px;"><div style="font-size:16px; font-weight:600;">MVP</div><div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#626B74;">log in, write a page, edit it live with someone else</div></div>
-          <span class="pulse" style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#9C87ED; border:1px solid #3B3163; border-radius:3px; padding:3px 8px; white-space:nowrap;">&#127937; NEXT</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:10px; border-radius:3px; padding:3px 8px; white-space:nowrap; color:#3FC79A; border:1px solid #2A5546;">&#10003; SHIPPED</span>
         </div>
         <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:1px; background:#191E25;">
           <div style="background:#0C1015; padding:16px 20px;"><div style="font-family:'JetBrains Mono',monospace; font-size:11.5px; color:#C4B4F5; margin-bottom:4px;">1 &mdash; Documents &#9679;&#9679;&#9675;</div><div style="font-size:12px; color:#8B93A0; line-height:1.6;">Pages, blocks, tree, outbox, block-granular ops, a single-user editor that saves</div></div>
@@ -326,7 +326,7 @@
         <div style="display:grid; grid-template-columns:64px 1fr auto; gap:18px; align-items:center; padding:18px 22px; border-bottom:1px solid #191E25;">
           <div style="font-family:'JetBrains Mono',monospace; font-size:19px; font-weight:600; color:#4E5761;">02</div>
           <div style="display:flex; flex-direction:column; gap:3px;"><div style="font-size:16px; font-weight:600; color:#9AA3AC;">The differentiators</div><div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#4E5761;">the three things it does that nothing else does</div></div>
-          <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#626B74; border:1px solid #262C33; border-radius:3px; padding:3px 8px;">QUEUED</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:10px; border-radius:3px; padding:3px 8px; white-space:nowrap; color:#3FC79A; border:1px solid #2A5546;">&#10003; SHIPPED</span>
         </div>
         <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:1px; background:#191E25;">
           <div style="background:#0C1015; padding:16px 20px;"><div style="font-family:'JetBrains Mono',monospace; font-size:11.5px; color:#8B93A0; margin-bottom:4px;">4 &mdash; Diagnostics &#9679;&#9679;&#9679;</div><div style="font-size:12px; color:#8B93A0; line-height:1.6;">Analyzers, symbol table, incremental engine, squiggles</div></div>
@@ -338,8 +338,8 @@
       <div class="card" style="border:1px solid #1D232A; border-radius:8px; background:#0C1015; overflow:hidden;">
         <div style="display:grid; grid-template-columns:64px 1fr auto; gap:18px; align-items:center; padding:18px 22px; border-bottom:1px solid #191E25;">
           <div style="font-family:'JetBrains Mono',monospace; font-size:19px; font-weight:600; color:#4E5761;">03</div>
-          <div style="display:flex; flex-direction:column; gap:3px;"><div style="font-size:16px; font-weight:600; color:#9AA3AC;">Distributed systems</div><div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#4E5761;">where eleven services stop being decoration</div></div>
-          <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#626B74; border:1px solid #262C33; border-radius:3px; padding:3px 8px;">QUEUED</span>
+          <div style="display:flex; flex-direction:column; gap:3px;"><div style="font-size:16px; font-weight:600; color:#9AA3AC;">Distributed systems</div><div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#4E5761;">where six services stop being decoration</div></div>
+          <span class="pulse" style="font-family:'JetBrains Mono',monospace; font-size:10px; border-radius:3px; padding:3px 8px; white-space:nowrap; color:#9C87ED; border:1px solid #3B3163;">&#9679; IN PROGRESS</span>
         </div>
         <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:1px; background:#191E25;">
           <div style="background:#0C1015; padding:16px 20px;"><div style="font-family:'JetBrains Mono',monospace; font-size:11.5px; color:#8B93A0; margin-bottom:4px;">7 &mdash; Search &#9679;&#9679;&#9679;</div><div style="font-size:12px; color:#8B93A0; line-height:1.6;">Tantivy, inverted index, link autocomplete</div></div>
@@ -353,7 +353,7 @@
         <div style="display:grid; grid-template-columns:64px 1fr auto; gap:18px; align-items:center; padding:18px 22px; border-bottom:1px solid #191E25;">
           <div style="font-family:'JetBrains Mono',monospace; font-size:19px; font-weight:600; color:#4E5761;">04</div>
           <div style="display:flex; flex-direction:column; gap:3px;"><div style="font-size:16px; font-weight:600; color:#9AA3AC;">Knowledge platform</div><div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#4E5761;">ADR-009 &middot; ordered by dependency, not by theme</div></div>
-          <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#626B74; border:1px solid #262C33; border-radius:3px; padding:3px 8px;">QUEUED</span>
+          <span class="pulse" style="font-family:'JetBrains Mono',monospace; font-size:10px; border-radius:3px; padding:3px 8px; white-space:nowrap; color:#9C87ED; border:1px solid #3B3163;">&#9679; IN PROGRESS</span>
         </div>
         <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:1px; background:#191E25;">
           <div style="background:#0C1015; padding:16px 20px;"><div style="font-family:'JetBrains Mono',monospace; font-size:11.5px; color:#8B93A0; margin-bottom:4px;">13 &mdash; Identity &amp; RBAC</div><div style="font-size:12px; color:#8B93A0; line-height:1.6;">Users, roles, LTREE permission inheritance</div></div>

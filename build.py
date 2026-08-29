@@ -55,6 +55,79 @@ FAVICON = (
     "%3C/svg%3E"
 )
 
+# Each page already carries an ambient blob in its own accent — the wash sitting
+# behind panels like "ONE QUERY, TRACED". This adds one that follows the pointer
+# and, unlike the artboard's, sits *under* the grid, so the grid lines read as
+# etched glass with the light moving behind them. Landing and CV cycle all three
+# system accents, the same rekey their chrome does; a project page keeps its own.
+GLOW_ACCENT = {
+    ".":                 "rekey",
+    "cv":                "rekey",
+    "projects/blog":     "63,199,154",
+    "projects/marginal": "156,135,237",
+    "projects/cairn":    "224,152,90",
+}
+
+GLOW_CSS = """
+<style>
+@property --mglow-rgb { syntax: "<number>#"; inherits: true; initial-value: 224,152,90 }
+.mglow {
+  position: absolute; top: 0; left: 0;
+  width: 820px; height: 820px; margin: -410px 0 0 -410px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(var(--mglow-rgb), .17), transparent 68%);
+  /* transform only — the paint never changes, so the compositor does the work */
+  will-change: transform;
+}
+@keyframes mglow-rekey {
+  0%,26%   { --mglow-rgb: 224,152,90 }
+  33%,59%  { --mglow-rgb: 156,135,237 }
+  66%,92%  { --mglow-rgb: 63,199,154 }
+  100%     { --mglow-rgb: 224,152,90 }
+}
+.mglow-rekey { animation: mglow-rekey 15s ease-in-out infinite; }
+</style>
+"""
+
+GLOW_JS = """
+<script>
+(function () {
+  var grid = document.querySelector('.gridpan');
+  if (!grid || !grid.parentNode) return;
+
+  var el = document.createElement('div');
+  el.className = 'mglow%(rekey)s';
+  el.setAttribute('aria-hidden', 'true');
+  el.style.setProperty('--mglow-rgb', '%(rgb)s');
+  // Inserted before the grid so the grid paints over it. The artboard's own
+  // blobs sit after the grid and stay there — this is the one that goes behind.
+  grid.parentNode.insertBefore(el, grid);
+
+  // Start where the page's own accent already sits, so there is no jump before
+  // the pointer moves, and none at all on a touch device.
+  var tx = window.innerWidth * 0.56, ty = 240;
+  var x = tx, y = ty, raf = 0;
+
+  function frame() {
+    // Trailing lerp: the glow arrives a beat after the cursor, which reads as
+    // weight rather than something glued to the pointer.
+    x += (tx - x) * 0.075;
+    y += (ty - y) * 0.075;
+    el.style.transform = 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0)';
+    raf = (Math.abs(tx - x) > 0.5 || Math.abs(ty - y) > 0.5) ? requestAnimationFrame(frame) : 0;
+  }
+  function moveTo(px, py) {
+    tx = px; ty = py + window.scrollY;   // page coordinates, not viewport
+    if (!raf) raf = requestAnimationFrame(frame);
+  }
+
+  addEventListener('pointermove', function (e) { moveTo(e.clientX, e.clientY); }, { passive: true });
+  el.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)';
+})();
+</script>
+"""
+
 MOTION_CSS = """
 <style>
 /* Cross-document view transitions. Every page here is same-origin, so this one
@@ -220,6 +293,12 @@ def convert(src: pathlib.Path, title: str, desc: str, slug: str) -> str:
     slug_url = "" if slug == "." else slug
     og = "landing" if slug == "." else slug.replace("/", "-")
 
+    accent = GLOW_ACCENT.get(slug, "224,152,90")
+    glow_js = GLOW_JS % {
+        "rekey": " mglow-rekey" if accent == "rekey" else "",
+        "rgb": "224,152,90" if accent == "rekey" else accent,
+    }
+
     if slug in OWN_HOST:
         canonical = OWN_HOST[slug] + "/"
         body = absolutise(body)
@@ -246,9 +325,11 @@ def convert(src: pathlib.Path, title: str, desc: str, slug: str) -> str:
 {head}
 {RESPONSIVE_CSS}
 {MOTION_CSS}
+{GLOW_CSS}
 </head>
 <body>
 {body}
+{glow_js}
 </body>
 </html>
 """
