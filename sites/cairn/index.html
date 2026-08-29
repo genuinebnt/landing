@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cairn</title>
+<meta name="description" content="Cairn — in development.">
+<meta property="og:title" content="Cairn">
+<meta property="og:description" content="Cairn — in development.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <style>
+    body { margin:0; background:#0A0C0F; }
+    a { color:#E0985A; text-decoration:none; }
+    a:hover { color:#F0B87E; }
+    @keyframes rise  { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes grow  { from{transform:scaleX(0)} to{transform:scaleX(1)} }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    @keyframes dash  { to{stroke-dashoffset:-240} }
+    @keyframes scan  { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
+    @keyframes drift { 0%,100%{transform:translate(0,0)} 33%{transform:translate(20px,-14px)} 66%{transform:translate(-14px,10px)} }
+    @keyframes gridpan{ from{background-position:0 0} to{background-position:72px 72px} }
+    @keyframes caret { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+    @keyframes marquee{ from{transform:translateX(0)} to{transform:translateX(-50%)} }
+    @keyframes bob   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+    @keyframes readprog { from{transform:scaleX(0)} to{transform:scaleX(1)} }
+    @keyframes cell  { 0%,35%{opacity:.2} 50%,90%{opacity:1} 100%{opacity:.2} }
+    .rise{animation:rise .8s cubic-bezier(.22,1,.36,1) both}
+    .bar{transform-origin:left;animation:grow 1.15s cubic-bezier(.22,1,.36,1) both}
+    .rule{transform-origin:left;animation:grow 1.1s cubic-bezier(.22,1,.36,1) both}
+    .pulse{animation:pulse 2.4s ease-in-out infinite}
+    .edge{stroke-dasharray:5 7;animation:dash 5s linear infinite}
+    .scan{animation:scan 5.5s cubic-bezier(.45,0,.55,1) infinite}
+    .drift{animation:drift 22s ease-in-out infinite}
+    .gridpan{animation:gridpan 14s linear infinite}
+    .caret{animation:caret 1.05s steps(1) infinite}
+    .track{display:flex;width:max-content;animation:marquee 44s linear infinite}
+    .bob{animation:bob 4s ease-in-out infinite}
+    .readbar{transform-origin:left; animation:readprog linear both; animation-timeline:scroll(root block);}
+    .cell{animation:cell 3.2s ease-in-out infinite}
+    .card{transition:transform .38s cubic-bezier(.22,1,.36,1),border-color .3s ease,background .3s ease}
+    .card:hover{transform:translateY(-5px);border-color:#2E3742;background:#10151B}
+    .card:hover .arrow{transform:translateX(6px)}
+    .arrow{transition:transform .35s cubic-bezier(.22,1,.36,1)}
+    .chip{transition:border-color .22s ease,color .22s ease,transform .22s ease}
+    .chip:hover{border-color:#3E4954;color:#E7EAEC;transform:translateY(-2px)}
+    .row{transition:background .22s ease} .row:hover{background:#11161C}
+    .mx tr:hover td{background:#10151B}
+    .lab:hover{color:#E7EAEC}
+  </style>
+</head>
+<body>
+<div style="width:100%; box-sizing:border-box; background:#0A0C0F; color:#E7EAEC; font-family:'Space Grotesk',ui-sans-serif,system-ui,sans-serif; position:relative; overflow-x:clip;">
+
+  <div class="gridpan" style="position:absolute; inset:0; background-image:linear-gradient(#141A20 1px,transparent 1px),linear-gradient(90deg,#141A20 1px,transparent 1px); background-size:72px 72px; opacity:.45; pointer-events:none;"></div>
+  <div class="drift" style="position:absolute; top:-200px; left:54%; width:860px; height:860px; border-radius:50%; background:radial-gradient(circle,rgba(224,152,90,.15),transparent 68%); pointer-events:none;"></div>
+
+  <!-- rail -->
+  <div style="position:sticky; top:0; z-index:20; background:rgba(10,12,15,.9); border-bottom:1px solid #191E25;">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:24px; height:48px; padding:0 clamp(20px,4vw,56px); font-family:'JetBrains Mono',ui-monospace,monospace; font-size:11px; color:#626B74;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <a class="lab" href="/" style="color:#9AA3AC;">genuinebasil.dev</a><span style="color:#333B44;">/</span><a class="lab" href="/projects" style="color:#626B74;">projects</a><span style="color:#333B44;">/</span><span style="color:#E0985A;">cairn</span>
+      </div>
+      <div style="display:flex; gap:clamp(8px,1.4vw,18px); flex-wrap:wrap;"><a class="lab" href="#depth" style="color:#626B74;">depth</a><a class="lab" href="#services" style="color:#626B74;">services</a><a class="lab" href="#comms" style="color:#626B74;">comms</a><a class="lab" href="#layers" style="color:#626B74;">layers</a><a class="lab" href="#surfaces" style="color:#626B74;">surfaces</a><a class="lab" href="#decisions" style="color:#626B74;">decisions</a></div>
+      <div style="display:flex; align-items:center; gap:8px;"><span class="pulse" style="width:7px;height:7px;border-radius:50%;background:#E0985A;display:block;"></span><span>LAYER 2 / 7</span></div>
+    </div>
+    <div style="height:2px; background:#12161B; overflow:hidden;"><div class="readbar" style="height:2px; width:100%; background:#E0985A;"></div></div>
+  </div>
+
+  <!-- HERO -->
+  <div style="position:relative; display:grid; grid-template-columns:repeat(auto-fit,minmax(420px,1fr)); gap:clamp(36px,5vw,76px); align-items:center; padding:clamp(48px,7vw,92px) clamp(20px,4vw,56px) clamp(36px,5vw,64px);">
+    <div class="rise" style="display:flex; flex-direction:column; gap:clamp(18px,2.2vw,26px);">
+      <div style="display:flex; align-items:center; gap:12px; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.22em; text-transform:uppercase; flex-wrap:wrap;">
+        <span style="color:#E0985A;">Rust</span><span style="color:#333B44;">/</span><span style="color:#626B74;">distributed query engine</span><span style="color:#333B44;">/</span><span style="color:#626B74;">GCP</span>
+      </div>
+      <h1 style="margin:0; font-size:clamp(40px,5.8vw,78px); line-height:.96; letter-spacing:-.035em; font-weight:700; text-wrap:balance;">Watch a query<br><span style="color:#E0985A;">think.</span></h1>
+      <p style="margin:0; max-width:34rem; font-size:clamp(15px,1.25vw,17.5px); line-height:1.68; color:#9AA3AC; text-wrap:pretty;">A SQL engine split across services, built so every stage is legible while it runs &mdash; the parse tree, the join-order DP table, the plan fragments fanning out to workers, and inside each worker the B+Tree descent, the buffer-pool frames, the lock waits and the WAL records.</p>
+      <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; padding-top:4px;">
+        <a href="https://cairn.genuinebasil.dev" style="display:inline-flex; align-items:center; gap:10px; height:48px; padding:0 24px; border-radius:5px; background:#E0985A; color:#1A1206; font-weight:600; font-size:14px; box-shadow:0 0 44px -8px rgba(224,152,90,.5);">Go to cairn
+          <svg class="arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="m12 5 7 7-7 7"/></svg></a>
+        <a class="chip" href="https://github.com/genuinebnt" style="display:inline-flex; align-items:center; gap:9px; height:48px; padding:0 21px; border-radius:5px; border:1px solid #262C33; color:#9AA3AC; font-size:14px; font-weight:500;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>Source</a>
+        <a class="chip" href="https://blog.genuinebasil.dev" style="display:inline-flex; align-items:center; height:48px; padding:0 21px; border-radius:5px; border:1px solid #262C33; color:#9AA3AC; font-size:14px; font-weight:500;">Write-ups</a>
+      </div>
+      <div style="display:flex; flex-wrap:wrap; gap:8px; padding-top:10px;">
+        <span class="chip" style="font-family:'JetBrains Mono',monospace; font-size:11.5px; color:#9AA3AC; background:#0F141A; border:1px solid #1D232A; border-radius:4px; padding:6px 11px;"><strong style="color:#626B74;font-weight:500;">Language</strong>&nbsp; Rust</span>
+        <span class="chip" style="font-family:'JetBrains Mono',monospace; font-size:11.5px; color:#9AA3AC; background:#0F141A; border:1px solid #1D232A; border-radius:4px; padding:6px 11px;"><strong style="color:#626B74;font-weight:500;">Shape</strong>&nbsp; 7 layers, MVP-first</span>
+        <span class="chip" style="font-family:'JetBrains Mono',monospace; font-size:11.5px; color:#9AA3AC; background:#0F141A; border:1px solid #1D232A; border-radius:4px; padding:6px 11px;"><strong style="color:#626B74;font-weight:500;">Transport</strong>&nbsp; gRPC (tonic)</span>
+        <span class="chip" style="font-family:'JetBrains Mono',monospace; font-size:11.5px; color:#9AA3AC; background:#0F141A; border:1px solid #1D232A; border-radius:4px; padding:6px 11px;"><strong style="color:#626B74;font-weight:500;">Infra</strong>&nbsp; Cloud Run / GKE &middot; Terraform</span>
+        <span class="chip" style="font-family:'JetBrains Mono',monospace; font-size:11.5px; color:#9AA3AC; background:#0F141A; border:1px solid #1D232A; border-radius:4px; padding:6px 11px;"><strong style="color:#626B74;font-weight:500;">Surfaces</strong>&nbsp; 18 planned</span>
+      </div>
+    </div>
+
+    <div class="rise" style="animation-delay:.16s; border:1px solid #1D232A; border-radius:10px; background:#0C1015; padding:22px; box-shadow:0 30px 70px -34px rgba(0,0,0,.95);">
+      <div style="display:flex; justify-content:space-between; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.16em; color:#4E5761; margin-bottom:10px;"><span>ONE QUERY, TRACED</span><span style="color:#E0985A;">7 STAGES</span></div>
+      <svg viewBox="0 0 480 360" width="100%" height="336" fill="none" font-family="'JetBrains Mono',monospace">
+        <path class="edge" d="M240 44 L240 74" stroke="#3D4650" stroke-width="1.3"/>
+        <path class="edge" style="animation-delay:-.5s" d="M240 106 L240 136" stroke="#E0985A" stroke-width="1.3"/>
+        <path class="edge" style="animation-delay:-1s" d="M240 168 L240 198" stroke="#E0985A" stroke-width="1.3"/>
+        <path class="edge" style="animation-delay:-1.5s" d="M180 222 L92 222 L92 254" stroke="#E0985A" stroke-width="1.2"/>
+        <path class="edge" style="animation-delay:-1.8s" d="M240 230 L240 254" stroke="#E0985A" stroke-width="1.2"/>
+        <path class="edge" style="animation-delay:-2.1s" d="M300 222 L388 222 L388 254" stroke="#E0985A" stroke-width="1.2"/>
+        <path class="edge" style="animation-delay:-2.7s" d="M92 318 L92 340 L388 340 L388 318" stroke="#3FC79A" stroke-width="1.2"/>
+
+        <rect x="150" y="18" width="180" height="26" rx="4" fill="#0F141A" stroke="#2A323B"/><text x="240" y="36" fill="#9AA3AC" font-size="10.5" text-anchor="middle">SELECT &hellip; JOIN &hellip; WHERE</text>
+        <rect x="150" y="74" width="180" height="32" rx="4" fill="#171208" stroke="#E0985A" stroke-width="1.2"/><text x="240" y="94" fill="#EFC094" font-size="11" text-anchor="middle">lexer &rarr; parser &rarr; AST</text>
+        <rect x="150" y="136" width="180" height="32" rx="4" fill="#171208" stroke="#E0985A" stroke-width="1.2"/><text x="240" y="150" fill="#EFC094" font-size="11" text-anchor="middle">join-order DP</text><text x="240" y="163" fill="#84674A" font-size="8.5" text-anchor="middle">best[S] over subsets</text>
+        <rect x="150" y="198" width="180" height="32" rx="4" fill="#0F141A" stroke="#3D4650" stroke-width="1.2"/><text x="240" y="218" fill="#E7EAEC" font-size="11" text-anchor="middle">plan fragments &rarr; dispatch</text>
+
+        <g class="bob"><rect x="34" y="254" width="116" height="64" rx="4" fill="#171208" stroke="#E0985A" stroke-width="1.1"/><text x="92" y="272" fill="#EFC094" font-size="10" text-anchor="middle">worker</text><text x="92" y="287" fill="#84674A" font-size="8" text-anchor="middle">b+tree &middot; pool</text><text x="92" y="300" fill="#84674A" font-size="8" text-anchor="middle">locks &middot; wal</text><circle class="pulse" cx="138" cy="264" r="2.8" fill="#E0985A"/></g>
+        <g class="bob" style="animation-delay:-1.3s"><rect x="182" y="254" width="116" height="64" rx="4" fill="#171208" stroke="#E0985A" stroke-width="1.1"/><text x="240" y="272" fill="#EFC094" font-size="10" text-anchor="middle">worker</text><text x="240" y="287" fill="#84674A" font-size="8" text-anchor="middle">b+tree &middot; pool</text><text x="240" y="300" fill="#84674A" font-size="8" text-anchor="middle">locks &middot; wal</text><circle class="pulse" style="animation-delay:-.8s" cx="286" cy="264" r="2.8" fill="#E0985A"/></g>
+        <g class="bob" style="animation-delay:-2.6s"><rect x="330" y="254" width="116" height="64" rx="4" fill="#171208" stroke="#E0985A" stroke-width="1.1"/><text x="388" y="272" fill="#EFC094" font-size="10" text-anchor="middle">worker</text><text x="388" y="287" fill="#84674A" font-size="8" text-anchor="middle">b+tree &middot; pool</text><text x="388" y="300" fill="#84674A" font-size="8" text-anchor="middle">locks &middot; wal</text><circle class="pulse" style="animation-delay:-1.6s" cx="434" cy="264" r="2.8" fill="#E0985A"/></g>
+        <text x="240" y="354" fill="#3FC79A" font-size="9" text-anchor="middle">exchange / shuffle &middot; raft metadata</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ENGINEERING DEPTH -->
+  <div id="depth" style="position:relative; padding:0 clamp(20px,4vw,56px) clamp(44px,6vw,76px);">
+    <div style="display:flex; align-items:center; gap:20px; margin-bottom:14px;">
+      <span style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.22em; color:#626B74;">ENGINEERING DEPTH</span>
+      <span class="rule" style="flex-grow:1; height:1px; background:#191E25;"></span>
+    </div>
+    <p style="margin:0 0 26px; max-width:64ch; font-size:15px; line-height:1.7; color:#8B93A0; text-wrap:pretty;">Four algorithms carry this project. Each one is drawn on screen as it runs, which is only possible because span emission was built into layer 1 rather than retrofitted after.</p>
+    <div style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:14px;">
+
+      <div class="card" style="position:relative; border:1px solid #1D232A; border-radius:8px; background:#0C1015; padding:24px; display:flex; flex-direction:column; gap:12px; overflow:hidden;">
+        <div class="scan" style="position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(224,152,90,.05),transparent); pointer-events:none;"></div>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.2em; color:#E0985A;">JOIN-ORDER DP</span>
+        <svg viewBox="0 0 220 76" width="100%" height="72" fill="none">
+          <rect x="6" y="6" width="30" height="18" rx="2" fill="#171208" stroke="#E0985A"/><rect x="42" y="6" width="30" height="18" rx="2" fill="#171208" stroke="#E0985A"/><rect x="78" y="6" width="30" height="18" rx="2" fill="#0F141A" stroke="#2A323B"/><rect x="114" y="6" width="30" height="18" rx="2" fill="#0F141A" stroke="#2A323B"/><rect x="150" y="6" width="30" height="18" rx="2" fill="#0F141A" stroke="#2A323B"/>
+          <rect x="6" y="29" width="30" height="18" rx="2" fill="#171208" stroke="#E0985A"/><rect x="42" y="29" width="30" height="18" rx="2" fill="#2A1C0C" stroke="#A2703B"/><rect x="78" y="29" width="30" height="18" rx="2" fill="#2A1C0C" stroke="#A2703B"/><rect x="114" y="29" width="30" height="18" rx="2" fill="#0F141A" stroke="#2A323B"/><rect x="150" y="29" width="30" height="18" rx="2" fill="#0F141A" stroke="#2A323B"/>
+          <rect x="6" y="52" width="30" height="18" rx="2" fill="#2A1C0C" stroke="#A2703B"/><rect x="42" y="52" width="30" height="18" rx="2" fill="#2A1C0C" stroke="#A2703B"/><rect x="78" y="52" width="30" height="18" rx="2" fill="#0F141A" stroke="#2A323B"/><rect x="114" y="52" width="30" height="18" rx="2" fill="#0F141A" stroke="#2A323B"/><rect x="150" y="52" width="30" height="18" rx="2" fill="#0F141A" stroke="#2A323B"/>
+          <rect class="pulse" x="78" y="29" width="30" height="18" rx="2" fill="none" stroke="#E0985A" stroke-width="1.6"/>
+          <text x="190" y="19" fill="#4E5761" font-size="8" font-family="'JetBrains Mono',monospace">best[S]</text>
+        </svg>
+        <p style="margin:0; font-size:13px; line-height:1.68; color:#8B93A0; text-wrap:pretty;">Exhaustive DP over relation subsets with a real cost model from catalog statistics &mdash; then a GEQO-style genetic fallback once N makes the table stop fitting. The cliff is shown, not hidden.</p>
+      </div>
+
+      <div class="card" style="position:relative; border:1px solid #1D232A; border-radius:8px; background:#0C1015; padding:24px; display:flex; flex-direction:column; gap:12px; overflow:hidden;">
+        <div class="scan" style="animation-delay:-1.4s; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(125,158,201,.05),transparent); pointer-events:none;"></div>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.2em; color:#7D9EC9;">B+TREE &amp; LATCH CRABBING</span>
+        <svg viewBox="0 0 220 76" width="100%" height="72" fill="none">
+          <path class="edge" d="M110 20 L60 44" stroke="#7D9EC9" stroke-width="1.2"/><path class="edge" style="animation-delay:-1s" d="M110 20 L160 44" stroke="#3D4650" stroke-width="1.2"/>
+          <path class="edge" style="animation-delay:-2s" d="M60 44 L30 68" stroke="#3D4650" stroke-width="1.1"/><path class="edge" style="animation-delay:-2.5s" d="M60 44 L90 68" stroke="#7D9EC9" stroke-width="1.1"/>
+          <path class="edge" style="animation-delay:-3s" d="M160 44 L130 68" stroke="#3D4650" stroke-width="1.1"/><path class="edge" style="animation-delay:-3.5s" d="M160 44 L190 68" stroke="#3D4650" stroke-width="1.1"/>
+          <rect x="88" y="8" width="44" height="16" rx="2" fill="#0E1620" stroke="#7D9EC9" stroke-width="1.2"/>
+          <rect x="38" y="34" width="44" height="16" rx="2" fill="#0E1620" stroke="#7D9EC9" stroke-width="1.2"/><rect x="138" y="34" width="44" height="16" rx="2" fill="#0F141A" stroke="#2A323B"/>
+          <rect x="10" y="60" width="40" height="14" rx="2" fill="#0F141A" stroke="#2A323B"/><rect x="70" y="60" width="40" height="14" rx="2" fill="#0E1620" stroke="#7D9EC9" stroke-width="1.2"/><rect x="110" y="60" width="40" height="14" rx="2" fill="#0F141A" stroke="#2A323B"/><rect x="170" y="60" width="40" height="14" rx="2" fill="#0F141A" stroke="#2A323B"/>
+        </svg>
+        <p style="margin:0; font-size:13px; line-height:1.68; color:#8B93A0; text-wrap:pretty;">A reader releases the parent latch the moment the child is latched, so descents overlap instead of serialising. The hardest part of a B+Tree to get right, stepped one frame at a time.</p>
+      </div>
+
+      <div class="card" style="position:relative; border:1px solid #1D232A; border-radius:8px; background:#0C1015; padding:24px; display:flex; flex-direction:column; gap:12px; overflow:hidden;">
+        <div class="scan" style="animation-delay:-2.8s; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(156,135,237,.05),transparent); pointer-events:none;"></div>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.2em; color:#9C87ED;">RAFT &amp; THE WAIT-FOR GRAPH</span>
+        <svg viewBox="0 0 220 76" width="100%" height="72" fill="none">
+          <path class="edge" d="M40 24 L110 14" stroke="#9C87ED" stroke-width="1.2"/><path class="edge" style="animation-delay:-.9s" d="M110 14 L180 28" stroke="#3D4650" stroke-width="1.2"/>
+          <path class="edge" style="animation-delay:-1.8s" d="M40 24 L72 58" stroke="#3D4650" stroke-width="1.2"/><path class="edge" style="animation-delay:-2.4s" d="M72 58 L140 64" stroke="#9C87ED" stroke-width="1.2"/>
+          <path class="edge" style="animation-delay:-3s" d="M140 64 L180 28" stroke="#3D4650" stroke-width="1.2"/>
+          <circle class="pulse" cx="40" cy="24" r="7" fill="#12101A" stroke="#9C87ED" stroke-width="1.3"/><circle class="pulse" style="animation-delay:-.6s" cx="110" cy="14" r="9" fill="#12101A" stroke="#9C87ED" stroke-width="1.4"/><circle cx="180" cy="28" r="7" fill="#0F141A" stroke="#3D4650" stroke-width="1.2"/><circle class="pulse" style="animation-delay:-1.2s" cx="72" cy="58" r="7" fill="#12101A" stroke="#9C87ED" stroke-width="1.3"/><circle cx="140" cy="64" r="6" fill="#0F141A" stroke="#3D4650" stroke-width="1.2"/>
+        </svg>
+        <p style="margin:0; font-size:13px; line-height:1.68; color:#8B93A0; text-wrap:pretty;">Hand-rolled Raft for coordinator HA and catalog replication, plus a lock wait-for graph with cycle detection &mdash; a deadlock is a cycle you can literally watch close.</p>
+      </div>
+
+      <div class="card" style="position:relative; border:1px solid #1D232A; border-radius:8px; background:#0C1015; padding:24px; display:flex; flex-direction:column; gap:12px; overflow:hidden;">
+        <div class="scan" style="animation-delay:-4.2s; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(63,199,154,.05),transparent); pointer-events:none;"></div>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.2em; color:#3FC79A;">ARIES RECOVERY</span>
+        <svg viewBox="0 0 220 76" width="100%" height="72" fill="none" font-family="'JetBrains Mono',monospace">
+          <line x1="10" y1="40" x2="210" y2="40" stroke="#252D35" stroke-width="1"/>
+          <rect class="bar" x="10" y="18" width="62" height="9" rx="2" fill="#3FC79A"/><text x="12" y="14" fill="#43775F" font-size="7.5">analysis</text>
+          <rect class="bar" style="animation-delay:.2s" x="72" y="30" width="72" height="9" rx="2" fill="#E0985A"/><text x="74" y="26" fill="#84674A" font-size="7.5">redo</text>
+          <rect class="bar" style="animation-delay:.4s" x="144" y="46" width="60" height="9" rx="2" fill="#9C87ED"/><text x="146" y="66" fill="#6C6382" font-size="7.5">undo</text>
+          <line class="pulse" x1="72" y1="10" x2="72" y2="70" stroke="#E2655F" stroke-width="1" stroke-dasharray="2 3"/><text x="76" y="70" fill="#E2655F" font-size="7.5">crash</text>
+        </svg>
+        <p style="margin:0; font-size:13px; line-height:1.68; color:#8B93A0; text-wrap:pretty;">Write-ahead logging with the three ARIES passes, and a crash you can inject yourself at any point on the timeline to watch analysis, redo and undo do their work.</p>
+      </div>
+
+      <div class="card" style="position:relative; border:1px solid #1D232A; border-radius:8px; background:#0C1015; padding:24px; display:flex; flex-direction:column; gap:12px; overflow:hidden;">
+        <div class="scan" style="animation-delay:-1.1s; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(224,152,90,.05),transparent); pointer-events:none;"></div>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.2em; color:#E0985A;">BUFFER POOL</span>
+        <svg viewBox="0 0 220 76" width="100%" height="72" fill="none" font-family="'JetBrains Mono',monospace">
+          <text x="6" y="12" fill="#4E5761" font-size="7.5">LRU-K</text>
+          <rect x="6" y="17" width="32" height="18" rx="2" fill="#2A1C0C" stroke="#E0985A"/><rect x="42" y="17" width="32" height="18" rx="2" fill="#2A1C0C" stroke="#E0985A"/><rect x="78" y="17" width="32" height="18" rx="2" fill="#0F141A" stroke="#2A323B"/><rect class="cell" x="114" y="17" width="32" height="18" rx="2" fill="#3A1E1C" stroke="#E2655F"/><rect x="150" y="17" width="32" height="18" rx="2" fill="#0F141A" stroke="#2A323B"/>
+          <text x="6" y="53" fill="#4E5761" font-size="7.5">ARC</text>
+          <rect x="6" y="57" width="32" height="16" rx="2" fill="#0B241A" stroke="#3FC79A"/><rect x="42" y="57" width="32" height="16" rx="2" fill="#0B241A" stroke="#3FC79A"/><rect x="78" y="57" width="32" height="16" rx="2" fill="#0B241A" stroke="#3FC79A"/><rect x="114" y="57" width="32" height="16" rx="2" fill="#0F141A" stroke="#2A323B"/><rect x="150" y="57" width="32" height="16" rx="2" fill="#0F141A" stroke="#2A323B"/>
+          <text x="188" y="29" fill="#E2655F" font-size="7">evict</text><text x="188" y="69" fill="#43775F" font-size="7">hit</text>
+        </svg>
+        <p style="margin:0; font-size:13px; line-height:1.68; color:#8B93A0; text-wrap:pretty;">LRU-K, ARC and Clock run against the same access trace side by side, so the difference between replacement policies is visible rather than asserted.</p>
+      </div>
+
+      <div class="card" style="position:relative; border:1px solid #1D232A; border-radius:8px; background:#0C1015; padding:24px; display:flex; flex-direction:column; gap:12px; overflow:hidden;">
+        <div class="scan" style="animation-delay:-3.6s; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(63,199,154,.05),transparent); pointer-events:none;"></div>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.2em; color:#3FC79A;">EXCHANGE &amp; SHUFFLE</span>
+        <svg viewBox="0 0 220 76" width="100%" height="72" fill="none" font-family="'JetBrains Mono',monospace">
+          <path class="edge" d="M40 22 L110 54" stroke="#3FC79A" stroke-width="1.2"/><path class="edge" style="animation-delay:-.7s" d="M40 22 L180 54" stroke="#3D4650" stroke-width="1.2"/>
+          <path class="edge" style="animation-delay:-1.4s" d="M110 22 L40 54" stroke="#3D4650" stroke-width="1.2"/><path class="edge" style="animation-delay:-2.1s" d="M110 22 L180 54" stroke="#3FC79A" stroke-width="1.2"/>
+          <path class="edge" style="animation-delay:-2.8s" d="M180 22 L110 54" stroke="#3D4650" stroke-width="1.2"/>
+          <rect x="14" y="10" width="52" height="16" rx="3" fill="#171208" stroke="#E0985A" stroke-width="1.2"/><rect x="84" y="10" width="52" height="16" rx="3" fill="#171208" stroke="#E0985A" stroke-width="1.2"/><rect x="154" y="10" width="52" height="16" rx="3" fill="#171208" stroke="#E0985A" stroke-width="1.2"/>
+          <rect x="14" y="52" width="52" height="16" rx="3" fill="#08150F" stroke="#3FC79A" stroke-width="1.2"/><rect x="84" y="52" width="52" height="16" rx="3" fill="#08150F" stroke="#3FC79A" stroke-width="1.2"/><rect x="154" y="52" width="52" height="16" rx="3" fill="#08150F" stroke="#3FC79A" stroke-width="1.2"/>
+        </svg>
+        <p style="margin:0; font-size:13px; line-height:1.68; color:#8B93A0; text-wrap:pretty;">The shuffle boundary is where a distributed engine stops resembling a single-node one, so exchange gets first-class treatment in the trace &mdash; including backpressure in both directions.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SERVICES -->
+  <div id="services" style="position:relative; padding:0 clamp(20px,4vw,56px) clamp(44px,6vw,76px);">
+    <div style="display:flex; align-items:center; gap:20px; margin-bottom:24px;">
+      <span style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.22em; color:#626B74;">SERVICES &mdash; BOUNDED CONTEXTS</span>
+      <span class="rule" style="flex-grow:1; height:1px; background:#191E25;"></span>
+      <span style="font-family:'JetBrains Mono',monospace; font-size:10.5px; color:#4E5761;">proposed &mdash; layer 6 decomposition</span>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); gap:14px;">
+      <div class="card" style="border:1px solid #1D232A; border-left:2px solid #E0985A; border-radius:6px; background:#0C1015; padding:22px 24px; display:flex; flex-direction:column; gap:10px;">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:15px; color:#EFC094; font-weight:600;">gateway</div>
+        <div style="font-size:12px; color:#626B74;">owns: session, SQL intake, trace fan-in</div>
+        <div style="display:flex; flex-wrap:wrap; gap:5px;"><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#9AA3AC; background:#131A21; border-radius:3px; padding:3px 7px;">REST edge</span><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#9AA3AC; background:#131A21; border-radius:3px; padding:3px 7px;">streaming results</span><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#9AA3AC; background:#131A21; border-radius:3px; padding:3px 7px;">auth/authz</span></div>
+        <p style="margin:0; font-size:12.5px; line-height:1.68; color:#8B93A0; text-wrap:pretty;">The single public entry. Accepts a statement, opens a trace, and streams span events back to the browser while the query is still running &mdash; so the UI renders progress rather than a final result blob.</p>
+      </div>
+      <div class="card" style="border:1px solid #1D232A; border-left:2px solid #7D9EC9; border-radius:6px; background:#0C1015; padding:22px 24px; display:flex; flex-direction:column; gap:10px;">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:15px; color:#A9C4E4; font-weight:600;">coordinator</div>
+        <div style="font-size:12px; color:#626B74;">owns: parse, plan, fragment, dispatch</div>
+        <div style="display:flex; flex-wrap:wrap; gap:5px;"><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#9AA3AC; background:#131A21; border-radius:3px; padding:3px 7px;">join-order DP</span><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#9AA3AC; background:#131A21; border-radius:3px; padding:3px 7px;">pushdown rewrites</span><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#9AA3AC; background:#131A21; border-radius:3px; padding:3px 7px;">locality-aware scheduling</span></div>
+        <p style="margin:0; font-size:12.5px; line-height:1.68; color:#8B93A0; text-wrap:pretty;">Lexer, recursive-descent parser, logical plan, then the physical plan and its fragment placement. The DP table is emitted as trace data, which is what makes the optimiser view exact rather than illustrative.</p>
+      </div>
+      <div class="card" style="border:1px solid #1D232A; border-left:2px solid #E0985A; border-radius:6px; background:#0C1015; padding:22px 24px; display:flex; flex-direction:column; gap:10px;">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:15px; color:#EFC094; font-weight:600;">worker</div>
+        <div style="font-size:12px; color:#626B74;">owns: storage, execution, txn state</div>
+        <div style="display:flex; flex-wrap:wrap; gap:5px;"><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#9AA3AC; background:#131A21; border-radius:3px; padding:3px 7px;">B+Tree</span><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#9AA3AC; background:#131A21; border-radius:3px; padding:3px 7px;">LRU-K / ARC</span><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#9AA3AC; background:#131A21; border-radius:3px; padding:3px 7px;">ARIES WAL</span><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#9AA3AC; background:#131A21; border-radius:3px; padding:3px 7px;">MVCC</span></div>
+        <p style="margin:0; font-size:12.5px; line-height:1.68; color:#8B93A0; text-wrap:pretty;">Where the database-internals work lives: heap and columnar page layout, a buffer pool with a real replacement policy, B+Tree indexes, the lock manager, and a Volcano iterator that later goes vectorised.</p>
+      </div>
+      <div class="card" style="border:1px solid #1D232A; border-left:2px solid #9C87ED; border-radius:6px; background:#0C1015; padding:22px 24px; display:flex; flex-direction:column; gap:10px;">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:15px; color:#C4B4F5; font-weight:600;">catalog</div>
+        <div style="font-size:12px; color:#626B74;">owns: schema, statistics, FDs &middot; Cloud SQL</div>
+        <div style="display:flex; flex-wrap:wrap; gap:5px;"><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#9AA3AC; background:#131A21; border-radius:3px; padding:3px 7px;">histograms</span><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#9AA3AC; background:#131A21; border-radius:3px; padding:3px 7px;">cardinality est.</span><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#9AA3AC; background:#131A21; border-radius:3px; padding:3px 7px;">read-mostly cache</span></div>
+        <p style="margin:0; font-size:12.5px; line-height:1.68; color:#8B93A0; text-wrap:pretty;">Its own gRPC service backed by Cloud SQL. Bad statistics are the usual reason a plan is bad, so the UI shows estimate against actual side by side for every operator.</p>
+      </div>
+      <div class="card" style="border:1px solid #1D232A; border-left:2px solid #3FC79A; border-radius:6px; background:#0C1015; padding:22px 24px; display:flex; flex-direction:column; gap:10px;">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:15px; color:#8AE3C4; font-weight:600;">metadata (raft)</div>
+        <div style="font-size:12px; color:#626B74;">owns: cluster state, leases, shard ownership</div>
+        <div style="display:flex; flex-wrap:wrap; gap:5px;"><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#9AA3AC; background:#131A21; border-radius:3px; padding:3px 7px;">Raft</span><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#9AA3AC; background:#131A21; border-radius:3px; padding:3px 7px;">consistent hashing</span><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#9AA3AC; background:#131A21; border-radius:3px; padding:3px 7px;">2PC coordinator</span></div>
+        <p style="margin:0; font-size:12.5px; line-height:1.68; color:#8B93A0; text-wrap:pretty;">The only strongly-consistent store in the system. Everything else may be stale; membership and shard ownership may not. Elections and log replication are drawn live in the distributed view.</p>
+      </div>
+      <div class="card" style="border:1px solid #1D232A; border-left:2px solid #E2655F; border-radius:6px; background:#0C1015; padding:22px 24px; display:flex; flex-direction:column; gap:10px;">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:15px; color:#EE9490; font-weight:600;">specialised workers</div>
+        <div style="font-size:12px; color:#626B74;">owns: vector &amp; graph query paths &mdash; cross-cutting</div>
+        <div style="display:flex; flex-wrap:wrap; gap:5px;"><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#9AA3AC; background:#131A21; border-radius:3px; padding:3px 7px;">HNSW / IVF</span><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#9AA3AC; background:#131A21; border-radius:3px; padding:3px 7px;">property graph</span><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#9AA3AC; background:#131A21; border-radius:3px; padding:3px 7px;">BFS / PageRank</span></div>
+        <p style="margin:0; font-size:12.5px; line-height:1.68; color:#8B93A0; text-wrap:pretty;">Vector and graph workers federated behind the coordinator through the same table interface, so one query can span row, column, vector and graph storage without the planner special-casing any of them.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMM MATRIX -->
+  <div id="comms" style="position:relative; padding:0 clamp(20px,4vw,56px) clamp(44px,6vw,76px);">
+    <div style="display:flex; align-items:center; gap:20px; margin-bottom:24px;">
+      <span style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.22em; color:#626B74;">SERVICE COMMUNICATION</span>
+      <span class="rule" style="flex-grow:1; height:1px; background:#191E25;"></span>
+    </div>
+    <div style="border:1px solid #191E25; border-radius:9px; overflow-x:auto;">
+      <table class="mx" style="width:100%; min-width:760px; border-collapse:collapse; font-family:'JetBrains Mono',monospace; font-size:12px;">
+        <thead><tr style="background:#0F141A;">
+          <th style="text-align:left; padding:12px 18px; color:#626B74; font-weight:500; letter-spacing:.1em; font-size:10.5px; border-bottom:1px solid #191E25;">FROM &rarr; TO</th>
+          <th style="text-align:left; padding:12px 18px; color:#626B74; font-weight:500; letter-spacing:.1em; font-size:10.5px; border-bottom:1px solid #191E25;">TRANSPORT</th>
+          <th style="text-align:left; padding:12px 18px; color:#626B74; font-weight:500; letter-spacing:.1em; font-size:10.5px; border-bottom:1px solid #191E25;">SHAPE</th>
+          <th style="text-align:left; padding:12px 18px; color:#626B74; font-weight:500; letter-spacing:.1em; font-size:10.5px; border-bottom:1px solid #191E25;">WHY THIS AND NOT THE OTHER</th>
+        </tr></thead>
+        <tbody style="color:#8B93A0;">
+          <tr><td style="padding:13px 18px; border-bottom:1px solid #14191F; color:#E7EAEC;">browser &rarr; gateway</td><td style="padding:13px 18px; border-bottom:1px solid #14191F; color:#3FC79A;">SSE</td><td style="padding:13px 18px; border-bottom:1px solid #14191F;">server stream</td><td style="padding:13px 18px; border-bottom:1px solid #14191F;">spans must arrive while the query still runs; polling would miss the thing being visualised</td></tr>
+          <tr><td style="padding:13px 18px; border-bottom:1px solid #14191F; color:#E7EAEC;">gateway &rarr; coordinator</td><td style="padding:13px 18px; border-bottom:1px solid #14191F; color:#E0985A;">gRPC</td><td style="padding:13px 18px; border-bottom:1px solid #14191F;">unary</td><td style="padding:13px 18px; border-bottom:1px solid #14191F;">one statement, one plan &mdash; nothing worth streaming</td></tr>
+          <tr><td style="padding:13px 18px; border-bottom:1px solid #14191F; color:#E7EAEC;">coordinator &rarr; catalog</td><td style="padding:13px 18px; border-bottom:1px solid #14191F; color:#E0985A;">gRPC</td><td style="padding:13px 18px; border-bottom:1px solid #14191F;">unary + cache</td><td style="padding:13px 18px; border-bottom:1px solid #14191F;">read-mostly; stale stats are survivable, a planning stall is not</td></tr>
+          <tr><td style="padding:13px 18px; border-bottom:1px solid #14191F; color:#E7EAEC;">coordinator &rarr; worker</td><td style="padding:13px 18px; border-bottom:1px solid #14191F; color:#E0985A;">gRPC</td><td style="padding:13px 18px; border-bottom:1px solid #14191F;">server stream</td><td style="padding:13px 18px; border-bottom:1px solid #14191F;">result batches flow back as produced, with backpressure on the channel</td></tr>
+          <tr><td style="padding:13px 18px; border-bottom:1px solid #14191F; color:#E7EAEC;">worker &harr; worker</td><td style="padding:13px 18px; border-bottom:1px solid #14191F; color:#9C87ED;">gRPC</td><td style="padding:13px 18px; border-bottom:1px solid #14191F;">bidi stream</td><td style="padding:13px 18px; border-bottom:1px solid #14191F;">exchange/shuffle is symmetric and needs backpressure in both directions</td></tr>
+          <tr><td style="padding:13px 18px; color:#E7EAEC;">any &rarr; metadata</td><td style="padding:13px 18px; color:#3FC79A;">Raft RPC</td><td style="padding:13px 18px;">quorum</td><td style="padding:13px 18px;">the one place that must be linearizable &mdash; kept off the query hot path deliberately</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ROADMAP: 7 LAYERS -->
+  <div id="layers" style="position:relative; padding:0 clamp(20px,4vw,56px) clamp(44px,6vw,76px);">
+    <div style="display:flex; align-items:center; gap:20px; margin-bottom:14px;">
+      <span style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.22em; color:#626B74;">THE SEVEN LAYERS</span>
+      <span class="rule" style="flex-grow:1; height:1px; background:#191E25;"></span>
+    </div>
+    <p style="margin:0 0 26px; max-width:64ch; font-size:15px; line-height:1.7; color:#8B93A0; text-wrap:pretty;">Two motions, not one sequence. Every layer gets a thin working MVP first; once all seven exist they wire into a walking skeleton on GCP, and only then does each layer get its own expansion track &mdash; picked in any order, re-integrated as it lands. There is no stage six where depth finally happens.</p>
+    <div style="border:1px solid #191E25; border-radius:9px; overflow-x:auto;">
+      <table class="mx" style="width:100%; min-width:860px; border-collapse:collapse; font-size:12.5px;">
+        <thead><tr style="background:#0F141A;">
+          <th style="text-align:left; padding:12px 18px; color:#626B74; font-family:'JetBrains Mono',monospace; font-weight:500; letter-spacing:.1em; font-size:10.5px; border-bottom:1px solid #191E25; width:44px;">#</th>
+          <th style="text-align:left; padding:12px 18px; color:#626B74; font-family:'JetBrains Mono',monospace; font-weight:500; letter-spacing:.1em; font-size:10.5px; border-bottom:1px solid #191E25;">LAYER</th>
+          <th style="text-align:left; padding:12px 18px; color:#626B74; font-family:'JetBrains Mono',monospace; font-weight:500; letter-spacing:.1em; font-size:10.5px; border-bottom:1px solid #191E25;">MVP SCOPE</th>
+          <th style="text-align:left; padding:12px 18px; color:#626B74; font-family:'JetBrains Mono',monospace; font-weight:500; letter-spacing:.1em; font-size:10.5px; border-bottom:1px solid #191E25;">EXPANSION TRACKS</th>
+          <th style="text-align:left; padding:12px 18px; color:#626B74; font-family:'JetBrains Mono',monospace; font-weight:500; letter-spacing:.1em; font-size:10.5px; border-bottom:1px solid #191E25; width:96px;">STATE</th>
+        </tr></thead>
+        <tbody style="color:#8B93A0;">
+          <tr><td style="padding:15px 18px; border-bottom:1px solid #14191F; font-family:'JetBrains Mono',monospace; color:#E0985A;">01</td><td style="padding:15px 18px; border-bottom:1px solid #14191F; color:#E7EAEC; font-weight:600;">SQL frontend</td><td style="padding:15px 18px; border-bottom:1px solid #14191F; line-height:1.6;">Hand-written lexer + recursive-descent parser for <code style="font-family:'JetBrains Mono',monospace;">SELECT &hellip; WHERE</code> &rarr; AST</td><td style="padding:15px 18px; border-bottom:1px solid #14191F; line-height:1.6;">Joins, subqueries, CTEs; semantic analysis against the catalog; type checking &amp; coercion; parse-error recovery</td><td style="padding:15px 18px; border-bottom:1px solid #14191F;"><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#3FC79A; border:1px solid #1E4A3A; border-radius:3px; padding:3px 8px;">MVP DONE</span></td></tr>
+          <tr><td style="padding:15px 18px; border-bottom:1px solid #14191F; font-family:'JetBrains Mono',monospace; color:#E0985A;">02</td><td style="padding:15px 18px; border-bottom:1px solid #14191F; color:#E7EAEC; font-weight:600;">Query planner</td><td style="padding:15px 18px; border-bottom:1px solid #14191F; line-height:1.6;">AST &rarr; logical plan, one fixed rule-based physical plan</td><td style="padding:15px 18px; border-bottom:1px solid #14191F; line-height:1.6;">DP join-order optimiser over <code style="font-family:'JetBrains Mono',monospace;">best[S]</code> with a cost model; predicate/projection pushdown; GEQO for large N</td><td style="padding:15px 18px; border-bottom:1px solid #14191F;"><span class="pulse" style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#E0985A; border:1px solid #543A21; border-radius:3px; padding:3px 8px;">BUILDING</span></td></tr>
+          <tr><td style="padding:15px 18px; border-bottom:1px solid #14191F; font-family:'JetBrains Mono',monospace; color:#4E5761;">03</td><td style="padding:15px 18px; border-bottom:1px solid #14191F; color:#9AA3AC; font-weight:600;">Execution engine</td><td style="padding:15px 18px; border-bottom:1px solid #14191F; line-height:1.6;">Volcano iterator model: scan, filter, project</td><td style="padding:15px 18px; border-bottom:1px solid #14191F; line-height:1.6;">Hash &amp; sort-merge join, aggregate, sort; vectorised batch execution; the exchange operator for cross-worker shuffle</td><td style="padding:15px 18px; border-bottom:1px solid #14191F;"><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#626B74; border:1px solid #262C33; border-radius:3px; padding:3px 8px;">QUEUED</span></td></tr>
+          <tr><td style="padding:15px 18px; border-bottom:1px solid #14191F; font-family:'JetBrains Mono',monospace; color:#4E5761;">04</td><td style="padding:15px 18px; border-bottom:1px solid #14191F; color:#9AA3AC; font-weight:600;">Storage engine</td><td style="padding:15px 18px; border-bottom:1px solid #14191F; line-height:1.6;">Plain heap file on local disk, read-through, no buffer pool</td><td style="padding:15px 18px; border-bottom:1px solid #14191F; line-height:1.6;">Buffer pool with LRU-K/ARC; B+Tree indexes; WAL + ARIES recovery; MVCC &amp; lock manager; hand-rolled columnar pages; an LSM backend alternative</td><td style="padding:15px 18px; border-bottom:1px solid #14191F;"><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#626B74; border:1px solid #262C33; border-radius:3px; padding:3px 8px;">QUEUED</span></td></tr>
+          <tr><td style="padding:15px 18px; border-bottom:1px solid #14191F; font-family:'JetBrains Mono',monospace; color:#4E5761;">05</td><td style="padding:15px 18px; border-bottom:1px solid #14191F; color:#9AA3AC; font-weight:600;">Distributed storage</td><td style="padding:15px 18px; border-bottom:1px solid #14191F; line-height:1.6;">Two workers, static hash partitioning, no replication</td><td style="padding:15px 18px; border-bottom:1px solid #14191F; line-height:1.6;">Consistent hashing; real exchange/shuffle for distributed joins; hand-rolled Raft for coordinator HA; 2PC across shards; locality-aware scheduling</td><td style="padding:15px 18px; border-bottom:1px solid #14191F;"><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#626B74; border:1px solid #262C33; border-radius:3px; padding:3px 8px;">QUEUED</span></td></tr>
+          <tr><td style="padding:15px 18px; border-bottom:1px solid #14191F; font-family:'JetBrains Mono',monospace; color:#4E5761;">06</td><td style="padding:15px 18px; border-bottom:1px solid #14191F; color:#9AA3AC; font-weight:600;">Service layer</td><td style="padding:15px 18px; border-bottom:1px solid #14191F; line-height:1.6;">Gateway &rarr; coordinator &rarr; workers over gRPC; catalog as its own service on Cloud SQL</td><td style="padding:15px 18px; border-bottom:1px solid #14191F; line-height:1.6;">Streaming result sets; coordinator&harr;worker backpressure; API versioning; auth/authz at the gateway</td><td style="padding:15px 18px; border-bottom:1px solid #14191F;"><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#626B74; border:1px solid #262C33; border-radius:3px; padding:3px 8px;">QUEUED</span></td></tr>
+          <tr><td style="padding:15px 18px; font-family:'JetBrains Mono',monospace; color:#4E5761;">07</td><td style="padding:15px 18px; color:#9AA3AC; font-weight:600;">Cloud &amp; infra</td><td style="padding:15px 18px; line-height:1.6;">Containers on Cloud Run or GKE, Terraform for GCP resources, one Cloud Build pipeline</td><td style="padding:15px 18px; line-height:1.6;">Full CI/CD on merge; VPC + private networking; autoscaling; Cloud Monitoring/Logging/Trace on the trace contract; chaos testing &mdash; kill a worker mid-query</td><td style="padding:15px 18px;"><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#626B74; border:1px solid #262C33; border-radius:3px; padding:3px 8px;">QUEUED</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- GCP marquee -->
+  <div style="position:relative; border-top:1px solid #191E25; border-bottom:1px solid #191E25; background:#0C1015; padding:20px 0; overflow:hidden; margin-bottom:clamp(44px,6vw,76px);">
+    <div class="track">
+      <div style="display:flex; gap:34px; padding-right:34px; font-family:'JetBrains Mono',monospace; font-size:12px; color:#4E5761; letter-spacing:.08em; white-space:nowrap;"><span style="color:#626B74;">GCP SURFACE</span><span style="color:#252D35;">&middot;</span><span style="color:#E0985A;">Cloud Run / GKE</span><span style="color:#252D35;">&middot;</span><span>Cloud Build</span><span style="color:#252D35;">&middot;</span><span>Artifact Registry</span><span style="color:#252D35;">&middot;</span><span style="color:#E0985A;">Terraform</span><span style="color:#252D35;">&middot;</span><span>Cloud SQL</span><span style="color:#252D35;">&middot;</span><span>Cloud Storage</span><span style="color:#252D35;">&middot;</span><span>VPC</span><span style="color:#252D35;">&middot;</span><span>Load Balancing</span><span style="color:#252D35;">&middot;</span><span>IAM</span><span style="color:#252D35;">&middot;</span><span>Secret Manager</span><span style="color:#252D35;">&middot;</span><span>Pub/Sub</span><span style="color:#252D35;">&middot;</span><span style="color:#3FC79A;">Cloud Trace</span><span style="color:#252D35;">&middot;</span></div>
+      <div style="display:flex; gap:34px; padding-right:34px; font-family:'JetBrains Mono',monospace; font-size:12px; color:#4E5761; letter-spacing:.08em; white-space:nowrap;"><span style="color:#626B74;">GCP SURFACE</span><span style="color:#252D35;">&middot;</span><span style="color:#E0985A;">Cloud Run / GKE</span><span style="color:#252D35;">&middot;</span><span>Cloud Build</span><span style="color:#252D35;">&middot;</span><span>Artifact Registry</span><span style="color:#252D35;">&middot;</span><span style="color:#E0985A;">Terraform</span><span style="color:#252D35;">&middot;</span><span>Cloud SQL</span><span style="color:#252D35;">&middot;</span><span>Cloud Storage</span><span style="color:#252D35;">&middot;</span><span>VPC</span><span style="color:#252D35;">&middot;</span><span>Load Balancing</span><span style="color:#252D35;">&middot;</span><span>IAM</span><span style="color:#252D35;">&middot;</span><span>Secret Manager</span><span style="color:#252D35;">&middot;</span><span>Pub/Sub</span><span style="color:#252D35;">&middot;</span><span style="color:#3FC79A;">Cloud Trace</span><span style="color:#252D35;">&middot;</span></div>
+    </div>
+  </div>
+
+  <!-- SURFACES -->
+  <div id="surfaces" style="position:relative; padding:0 clamp(20px,4vw,56px) clamp(44px,6vw,76px);">
+    <div style="display:flex; align-items:center; gap:20px; margin-bottom:14px;">
+      <span style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.22em; color:#626B74;">THE SURFACES &mdash; 18 PLANNED</span>
+      <span class="rule" style="flex-grow:1; height:1px; background:#191E25;"></span>
+    </div>
+    <p style="margin:0 0 24px; max-width:64ch; font-size:15px; line-height:1.7; color:#8B93A0; text-wrap:pretty;">Every screen has an owning layer and a status. <strong style="color:#3FC79A;">Live</strong> means it renders real data from a running service; <strong style="color:#9AA3AC;">mockup</strong> means it is a design reference for a layer that does not exist yet. If a screen cannot be placed in this table, either the layer list is short or the screen is wrong.</p>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:10px;">
+      <div class="card" style="border:1px solid #2A323B; border-radius:6px; background:#0F141A; padding:16px 18px; display:flex; flex-direction:column; gap:5px;"><div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-family:'JetBrains Mono',monospace; font-size:13px; color:#EFC094;">waypoints</span><span style="font-family:'JetBrains Mono',monospace; font-size:9px; color:#E0985A;">FLAGSHIP</span></div><div style="font-size:11.5px; color:#8B93A0; line-height:1.55;">One query traced end to end across every service</div><div style="font-family:'JetBrains Mono',monospace; font-size:9.5px; color:#4E5761;">layers 1&ndash;6</div></div>
+      <div class="card" style="border:1px solid #1D232A; border-radius:6px; background:#0C1015; padding:16px 18px; display:flex; flex-direction:column; gap:5px;"><span style="font-family:'JetBrains Mono',monospace; font-size:13px; color:#9AA3AC;">console</span><div style="font-size:11.5px; color:#8B93A0; line-height:1.55;">SQL REPL, results grid, EXPLAIN jumps into waypoints</div><div style="font-family:'JetBrains Mono',monospace; font-size:9.5px; color:#4E5761;">layers 1, 6</div></div>
+      <div class="card" style="border:1px solid #1D232A; border-radius:6px; background:#0C1015; padding:16px 18px; display:flex; flex-direction:column; gap:5px;"><span style="font-family:'JetBrains Mono',monospace; font-size:13px; color:#9AA3AC;">distributed</span><div style="font-size:11.5px; color:#8B93A0; line-height:1.55;">2PC handshake, Raft election, hashing ring, shuffle</div><div style="font-family:'JetBrains Mono',monospace; font-size:9.5px; color:#4E5761;">layer 5</div></div>
+      <div class="card" style="border:1px solid #1D232A; border-radius:6px; background:#0C1015; padding:16px 18px; display:flex; flex-direction:column; gap:5px;"><span style="font-family:'JetBrains Mono',monospace; font-size:13px; color:#9AA3AC;">trace</span><div style="font-size:11.5px; color:#8B93A0; line-height:1.55;">gRPC span waterfall, service topology map</div><div style="font-family:'JetBrains Mono',monospace; font-size:9.5px; color:#4E5761;">layers 6, 7</div></div>
+      <div class="card" style="border:1px solid #1D232A; border-radius:6px; background:#0C1015; padding:16px 18px; display:flex; flex-direction:column; gap:5px;"><span style="font-family:'JetBrains Mono',monospace; font-size:13px; color:#9AA3AC;">buffer-pool lab</span><div style="font-size:11.5px; color:#8B93A0; line-height:1.55;">LRU-K vs ARC vs Clock on one access trace</div><div style="font-family:'JetBrains Mono',monospace; font-size:9.5px; color:#4E5761;">layer 4</div></div>
+      <div class="card" style="border:1px solid #1D232A; border-radius:6px; background:#0C1015; padding:16px 18px; display:flex; flex-direction:column; gap:5px;"><span style="font-family:'JetBrains Mono',monospace; font-size:13px; color:#9AA3AC;">btree lab</span><div style="font-size:11.5px; color:#8B93A0; line-height:1.55;">Split/merge stepped one op at a time; latch crabbing</div><div style="font-family:'JetBrains Mono',monospace; font-size:9.5px; color:#4E5761;">layer 4</div></div>
+      <div class="card" style="border:1px solid #1D232A; border-radius:6px; background:#0C1015; padding:16px 18px; display:flex; flex-direction:column; gap:5px;"><span style="font-family:'JetBrains Mono',monospace; font-size:13px; color:#9AA3AC;">optimizer lab</span><div style="font-size:11.5px; color:#8B93A0; line-height:1.55;">DP table at N tables; exhaustive vs greedy vs GEQO</div><div style="font-family:'JetBrains Mono',monospace; font-size:9.5px; color:#4E5761;">layer 2</div></div>
+      <div class="card" style="border:1px solid #1D232A; border-radius:6px; background:#0C1015; padding:16px 18px; display:flex; flex-direction:column; gap:5px;"><span style="font-family:'JetBrains Mono',monospace; font-size:13px; color:#9AA3AC;">concurrency lab</span><div style="font-size:11.5px; color:#8B93A0; line-height:1.55;">2PL/MVCC/T-O simulator, wait-for graph, deadlock</div><div style="font-family:'JetBrains Mono',monospace; font-size:9.5px; color:#4E5761;">layer 4</div></div>
+      <div class="card" style="border:1px solid #1D232A; border-radius:6px; background:#0C1015; padding:16px 18px; display:flex; flex-direction:column; gap:5px;"><span style="font-family:'JetBrains Mono',monospace; font-size:13px; color:#9AA3AC;">recovery lab</span><div style="font-size:11.5px; color:#8B93A0; line-height:1.55;">WAL timeline, crash injection, ARIES three passes</div><div style="font-family:'JetBrains Mono',monospace; font-size:9.5px; color:#4E5761;">layer 4</div></div>
+      <div class="card" style="border:1px solid #1D232A; border-radius:6px; background:#0C1015; padding:16px 18px; display:flex; flex-direction:column; gap:5px;"><span style="font-family:'JetBrains Mono',monospace; font-size:13px; color:#9AA3AC;">columnar lab</span><div style="font-size:11.5px; color:#8B93A0; line-height:1.55;">Row vs column layout, vectorised batches, SIMD lanes</div><div style="font-family:'JetBrains Mono',monospace; font-size:9.5px; color:#4E5761;">layers 3, 4</div></div>
+      <div class="card" style="border:1px solid #1D232A; border-radius:6px; background:#0C1015; padding:16px 18px; display:flex; flex-direction:column; gap:5px;"><span style="font-family:'JetBrains Mono',monospace; font-size:13px; color:#9AA3AC;">storage engines</span><div style="font-size:11.5px; color:#8B93A0; line-height:1.55;">B-Tree vs LSM &mdash; memtable, levels, compaction</div><div style="font-family:'JetBrains Mono',monospace; font-size:9.5px; color:#4E5761;">layer 4</div></div>
+      <div class="card" style="border:1px solid #1D232A; border-radius:6px; background:#0C1015; padding:16px 18px; display:flex; flex-direction:column; gap:5px;"><span style="font-family:'JetBrains Mono',monospace; font-size:13px; color:#9AA3AC;">vector lab</span><div style="font-size:11.5px; color:#8B93A0; line-height:1.55;">HNSW multi-layer graph, greedy beam search</div><div style="font-family:'JetBrains Mono',monospace; font-size:9.5px; color:#4E5761;">cross-cutting</div></div>
+      <div class="card" style="border:1px solid #1D232A; border-radius:6px; background:#0C1015; padding:16px 18px; display:flex; flex-direction:column; gap:5px;"><span style="font-family:'JetBrains Mono',monospace; font-size:13px; color:#9AA3AC;">graphdb lab</span><div style="font-size:11.5px; color:#8B93A0; line-height:1.55;">Property graph, BFS wavefront, PageRank convergence</div><div style="font-family:'JetBrains Mono',monospace; font-size:9.5px; color:#4E5761;">cross-cutting</div></div>
+      <div class="card" style="border:1px solid #1D232A; border-radius:6px; background:#0C1015; padding:16px 18px; display:flex; flex-direction:column; gap:5px;"><span style="font-family:'JetBrains Mono',monospace; font-size:13px; color:#9AA3AC;">federation</span><div style="font-size:11.5px; color:#8B93A0; line-height:1.55;">Routing graph across row/column/vector/graph workers</div><div style="font-family:'JetBrains Mono',monospace; font-size:9.5px; color:#4E5761;">cross-cutting</div></div>
+      <div class="card" style="border:1px solid #1D232A; border-radius:6px; background:#0C1015; padding:16px 18px; display:flex; flex-direction:column; gap:5px;"><span style="font-family:'JetBrains Mono',monospace; font-size:13px; color:#9AA3AC;">catalog</span><div style="font-size:11.5px; color:#8B93A0; line-height:1.55;">Tables, columns, indexes, stats, FD dependency graph</div><div style="font-family:'JetBrains Mono',monospace; font-size:9.5px; color:#4E5761;">layer 6</div></div>
+      <div class="card" style="border:1px solid #1D232A; border-radius:6px; background:#0C1015; padding:16px 18px; display:flex; flex-direction:column; gap:5px;"><span style="font-family:'JetBrains Mono',monospace; font-size:13px; color:#9AA3AC;">admin</span><div style="font-size:11.5px; color:#8B93A0; line-height:1.55;">Hit ratio, eviction rate, active txns, per-worker usage</div><div style="font-family:'JetBrains Mono',monospace; font-size:9.5px; color:#4E5761;">layers 4, 7</div></div>
+      <div class="card" style="border:1px solid #1D232A; border-radius:6px; background:#0C1015; padding:16px 18px; display:flex; flex-direction:column; gap:5px;"><span style="font-family:'JetBrains Mono',monospace; font-size:13px; color:#9AA3AC;">progress</span><div style="font-size:11.5px; color:#8B93A0; line-height:1.55;">The seven layers as a literal cairn, stone by stone</div><div style="font-family:'JetBrains Mono',monospace; font-size:9.5px; color:#4E5761;">all layers</div></div>
+      <div class="card" style="border:1px solid #1D232A; border-radius:6px; background:#0C1015; padding:16px 18px; display:flex; flex-direction:column; gap:5px;"><span style="font-family:'JetBrains Mono',monospace; font-size:13px; color:#9AA3AC;">home</span><div style="font-size:11.5px; color:#8B93A0; line-height:1.55;">The pitch &mdash; seven layers, skeleton, per-layer depth</div><div style="font-family:'JetBrains Mono',monospace; font-size:9.5px; color:#4E5761;">all layers</div></div>
+    </div>
+  </div>
+
+  <!-- DECISIONS -->
+  <div id="decisions" style="position:relative; padding:0 clamp(20px,4vw,56px) clamp(44px,6vw,72px);">
+    <div style="display:flex; align-items:center; gap:20px; margin-bottom:24px;">
+      <span style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.22em; color:#626B74;">DECISIONS WORTH DISCUSSING</span>
+      <span class="rule" style="flex-grow:1; height:1px; background:#191E25;"></span>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:12px; align-items:stretch;">
+      <div class="card" style="position:relative; border:1px solid #1D232A; border-radius:7px; background:#0C1015; padding:22px; display:flex; flex-direction:column; gap:12px; overflow:hidden;">
+        <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#E0985A; background:rgba(224,152,90,.09); border:1px solid rgba(224,152,90,.25); border-radius:3px; padding:4px 9px; align-self:flex-start;">sequencing</span>
+        <p style="margin:0; font-size:13px; line-height:1.72; color:#8B93A0; text-wrap:pretty;">MVP every layer thin, then combine, then deepen &mdash; rather than finishing layer 1 before starting layer 2. A linear sequence would mean the distributed and cloud work never gets touched until the single-node engine is &ldquo;done&rdquo;, which is to say never. The seams get proven while they are still cheap to move.</p>
+      </div>
+      <div class="card" style="position:relative; border:1px solid #1D232A; border-radius:7px; background:#0C1015; padding:22px; display:flex; flex-direction:column; gap:12px; overflow:hidden;">
+        <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#3FC79A; background:rgba(63,199,154,.09); border:1px solid rgba(63,199,154,.25); border-radius:3px; padding:4px 9px; align-self:flex-start;">tracing</span>
+        <p style="margin:0; font-size:13px; line-height:1.72; color:#8B93A0; text-wrap:pretty;">Span emission was built in layer 1, not retrofitted. Every later layer inherits the visualisation for free instead of needing a bespoke debug view, and the trace contract in <code style="font-family:'JetBrains Mono',monospace; color:#3FC79A;">ARCHITECTURE.md</code> is what Cloud Trace later plugs into unchanged.</p>
+      </div>
+      <div class="card" style="position:relative; border:1px solid #1D232A; border-radius:7px; background:#0C1015; padding:22px; display:flex; flex-direction:column; gap:12px; overflow:hidden;">
+        <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#7D9EC9; background:rgba(125,158,201,.09); border:1px solid rgba(125,158,201,.25); border-radius:3px; padding:4px 9px; align-self:flex-start;">optimiser</span>
+        <p style="margin:0; font-size:13px; line-height:1.72; color:#8B93A0; text-wrap:pretty;">Exhaustive join-order DP is <code style="font-family:'JetBrains Mono',monospace; color:#7D9EC9;">O(3&#8319;)</code> and stops being viable around a dozen relations. Rather than hide the cliff, the optimiser lab lets you raise N until the DP table visibly stops fitting and the genetic fallback takes over. The failure mode is the lesson.</p>
+      </div>
+      <div class="card" style="position:relative; border:1px solid #1D232A; border-radius:7px; background:#0C1015; padding:22px; display:flex; flex-direction:column; gap:12px; overflow:hidden;">
+        <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#9C87ED; background:rgba(156,135,237,.09); border:1px solid rgba(156,135,237,.25); border-radius:3px; padding:4px 9px; align-self:flex-start;">consensus</span>
+        <p style="margin:0; font-size:13px; line-height:1.72; color:#8B93A0; text-wrap:pretty;">Raft holds cluster metadata only, never query data. Putting shard ownership behind consensus and leaving everything else eventually consistent keeps the quorum path off the hot path &mdash; a query never waits on an election unless membership actually changed.</p>
+      </div>
+      <div class="card" style="position:relative; border:1px solid #1D232A; border-radius:7px; background:#0C1015; padding:22px; display:flex; flex-direction:column; gap:12px; overflow:hidden;">
+        <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#E2655F; background:rgba(226,101,95,.09); border:1px solid rgba(226,101,95,.25); border-radius:3px; padding:4px 9px; align-self:flex-start;">non-goals</span>
+        <p style="margin:0; font-size:13px; line-height:1.72; color:#8B93A0; text-wrap:pretty;">No Postgres wire-protocol compatibility, no WASM, no multi-tenant SaaS framing. Cairn speaks its own SQL surface over its own API, and nothing runs client-side &mdash; the whole point is real server processes with real network hops between them.</p>
+      </div>
+      <div class="card" style="position:relative; border:1px solid #1D232A; border-radius:7px; background:#0C1015; padding:22px; display:flex; flex-direction:column; gap:12px; overflow:hidden;">
+        <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#626B74; background:rgba(155,150,141,.07); border:1px solid #262C33; border-radius:3px; padding:4px 9px; align-self:flex-start;">design</span>
+        <p style="margin:0; font-size:13px; line-height:1.72; color:#8B93A0; text-wrap:pretty;">Colour encodes engine state and nothing else &mdash; amber is running, teal is a hit or a commit, red is a real failure, violet is blocked on a lock or a quorum. A reader who learns that amber also means &ldquo;the storage layer&rdquo; has learned that amber means nothing.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- footer -->
+  <div style="position:relative; border-top:1px solid #191E25; padding:clamp(30px,4vw,42px) clamp(20px,4vw,56px) clamp(28px,4vw,40px); display:flex; align-items:center; justify-content:space-between; gap:32px; flex-wrap:wrap; font-family:'JetBrains Mono',monospace; font-size:12px;">
+    <div style="display:flex; gap:24px; flex-wrap:wrap;"><a href="https://cairn.genuinebasil.dev">live &rarr;</a><a class="lab" href="https://github.com/genuinebnt" style="color:#8B93A0;">source</a><a class="lab" href="https://blog.genuinebasil.dev" style="color:#8B93A0;">write-ups</a><span style="color:#333B44;">&copy; 2026 genuinebasil.dev<span class="caret" style="color:#626B74;">&#9608;</span></span></div>
+    <div style="display:flex; gap:24px;"><a href="/projects/marginal" style="color:#9C87ED;">&larr; marginal</a><a href="/projects/blog" style="color:#3FC79A;">blog &rarr;</a></div>
+  </div>
+</div>
+</body>
+</html>

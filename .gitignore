@@ -1,0 +1,4 @@
+.DS_Store
+node_modules/
+# 2.8 MB canvas export bundle — the .dc.html artboards are the real sources
+genuinebasil-landing.html
