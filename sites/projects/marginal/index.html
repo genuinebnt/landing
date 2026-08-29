@@ -8,7 +8,12 @@
 <meta property="og:title" content="Marginal — genuinebasil.dev">
 <meta property="og:description" content="A collaborative document engine built on Go microservices.">
 <meta property="og:type" content="website">
-<link rel="icon" href="data:,">
+<meta property="og:url" content="https://genuinebasil.dev/projects/marginal">
+<meta property="og:image" content="https://genuinebasil.dev/og/projects-marginal.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230A0C0F'/%3E%3Ccircle cx='16' cy='16' r='3.2' fill='%23E7EAEC'/%3E%3Ccircle cx='7' cy='9' r='2.6' fill='%239C87ED'/%3E%3Ccircle cx='25' cy='9' r='2.6' fill='%23E0985A'/%3E%3Ccircle cx='16' cy='26' r='2.6' fill='%233FC79A'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
   <style>
     body { margin:0; background:#0A0C0F; }
@@ -101,6 +106,19 @@ html, body { max-width: 100%; overflow-x: hidden; }
     column-gap: 13px !important;
   }
 
+  /* The CV timeline puts a fixed date column beside the content. On a phone
+     that leaves under 200px for the text, which wraps to three words a line.
+     Stack the date above its entry instead and keep the accent rail. */
+  .cv-tl { grid-template-columns: 1fr !important; }
+  .cv-when {
+    margin-top: 22px;
+    letter-spacing: .12em;
+  }
+  .cv-what {
+    padding-left: 18px !important;
+    padding-bottom: 20px !important;
+  }
+
   /* Fixed two-up rows (icon gutter + content) read better stacked. */
   [style*="grid-template-columns:64px 1fr auto"] {
     grid-template-columns: 1fr !important;
@@ -120,6 +138,34 @@ html, body { max-width: 100%; overflow-x: hidden; }
 @media (min-width: 761px) and (max-width: 1024px) {
   [style*="repeat(3, minmax(0, 1fr))"], [style*="repeat(3,minmax(0,1fr))"] {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+</style>
+
+
+<style>
+/* Cross-document view transitions. Every page here is same-origin, so this one
+   rule turns navigation between them into a morph rather than a cut. Browsers
+   without support just navigate as they do today. */
+@view-transition { navigation: auto; }
+
+/* The rail wordmark is on every page, so naming it lets it travel across the
+   navigation instead of cross-fading with the rest. Exactly one element per
+   page may carry a given name — a duplicate makes the browser skip the
+   transition entirely. */
+[style*="height:48px"] > div:first-child { view-transition-name: rail-identity; }
+
+/* .rise fires on load, so every section below the fold finished animating long
+   before anyone scrolled to it. Drive it from the element's own position in the
+   viewport instead. Anything already on screen at load is past the range and
+   renders in its final state.
+
+   Only these one-shot reveals move to a timeline. The looping animations —
+   rekey, pulse, scan, marquee, drift — are deliberately left alone. */
+@supports (animation-timeline: view()) {
+  .rise {
+    animation-timeline: view();
+    animation-range: entry 5% cover 30%;
   }
 }
 </style>
