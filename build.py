@@ -179,9 +179,17 @@ OWN_HOST = {
 }
 
 
+# Only links that genuinely point at apex content. A blanket rewrite of every
+# root-relative href would also drag the page's own assets — the CV PDF sits
+# beside the page on its own host, and "/" there is that host's root, correctly.
+APEX_PATHS = ('href="/"', 'href="/#', 'href="/projects/')
+
+
 def absolutise(html: str) -> str:
-    """Point root-relative hrefs at the apex, for pages on another origin."""
-    return html.replace('href="/', f'href="{APEX}/')
+    """Point apex-bound hrefs at the apex, for pages served on another origin."""
+    for prefix in APEX_PATHS:
+        html = html.replace(prefix, prefix.replace('href="/', f'href="{APEX}/'))
+    return html
 
 
 def convert(src: pathlib.Path, title: str, desc: str, slug: str) -> str:
@@ -239,6 +247,25 @@ def convert(src: pathlib.Path, title: str, desc: str, slug: str) -> str:
 """
 
 
+def copy_static(srcdir: pathlib.Path, outdir: pathlib.Path) -> None:
+    """Mirror static/ into the output tree, preserving structure.
+
+    Anything not generated from an artboard lives there — the CV PDF, for one —
+    so sites/ stays reproducible from sources rather than accumulating files
+    that only exist because someone once dropped them in the build output.
+    """
+    static = srcdir / "static"
+    if not static.is_dir():
+        return
+    for src in static.rglob("*"):
+        if not src.is_file() or src.name in {"README.md", ".gitkeep"}:
+            continue
+        dest = outdir / src.relative_to(static)
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_bytes(src.read_bytes())
+        print(f"static: {src.relative_to(srcdir)} -> {dest}")
+
+
 def main() -> None:
     srcdir = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else ".")
     outdir = pathlib.Path(sys.argv[2] if len(sys.argv) > 2 else "sites")
@@ -249,6 +276,8 @@ def main() -> None:
         html = convert(srcdir / f"{stem}.dc.html", title, desc, slug)
         (dest / "index.html").write_text(html, encoding="utf-8")
         print(f"{stem}.dc.html -> {(dest / 'index.html')}  ({len(html):,} bytes)")
+
+    copy_static(srcdir, outdir)
 
 
 if __name__ == "__main__":

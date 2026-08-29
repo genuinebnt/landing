@@ -238,9 +238,13 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="rise" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:30px; align-items:end; margin-bottom:clamp(30px,4vw,46px);">
       <div>
         <h2 style="margin:0 0 10px; font-size:clamp(26px,3.4vw,38px); line-height:1.06; letter-spacing:-.02em; color:#E7EAEC;">Genuine Basil NT</h2>
-        <p style="margin:0; max-width:56ch; font-size:15px; line-height:1.7; color:#8B93A0; text-wrap:pretty;">Backend engineer working in Rust on real-time collaboration and event-driven services. The systems below are the same shape as the work &mdash; CRDTs, operation logs and message queues &mdash; written rather than imported.</p>
+        <p style="margin:0; max-width:56ch; font-size:15px; line-height:1.7; color:#8B93A0; text-wrap:pretty;">Backend engineer, mostly in Rust. I work on real-time collaboration and event-driven services, and the projects below are the same problems at a smaller scale &mdash; CRDTs, operation logs, query planning &mdash; written out rather than pulled from a crate.</p>
       </div>
       <div style="display:flex; flex-wrap:wrap; gap:10px;">
+        <a class="chip k-st" download href="/genuine-basil-nt-cv.pdf" style="display:inline-flex; align-items:center; gap:9px; height:44px; padding:0 19px; border-radius:5px; border:1px solid #3A3140; background:#0E1116; color:#E7EAEC; font-size:13.5px; font-weight:500;">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v8"/><path d="M4.5 7L8 10.5 11.5 7"/><path d="M2.5 13h11"/></svg>
+          Download CV
+        </a>
         <a class="chip" href="mailto:genuine.basilnt@gmail.com" style="display:inline-flex; align-items:center; height:44px; padding:0 19px; border-radius:5px; border:1px solid #262C33; color:#9AA3AC; font-size:13.5px; font-weight:500;">Email</a>
         <a class="chip" href="https://github.com/genuinebnt" style="display:inline-flex; align-items:center; height:44px; padding:0 19px; border-radius:5px; border:1px solid #262C33; color:#9AA3AC; font-size:13.5px; font-weight:500;">GitHub</a>
         <a class="chip" href="https://www.linkedin.com/in/genuinebasilnt/" style="display:inline-flex; align-items:center; height:44px; padding:0 19px; border-radius:5px; border:1px solid #262C33; color:#9AA3AC; font-size:13.5px; font-weight:500;">LinkedIn</a>
@@ -258,7 +262,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <span style="font-size:17px; font-weight:600; color:#E7EAEC;">Impact Analytics</span>
           <span class="k-c" style="font-family:'JetBrains Mono',monospace; font-size:11px;">Senior Software Engineer &middot; Backend</span>
         </div>
-        <p style="margin:0 0 16px; font-size:13.5px; line-height:1.7; color:#8B93A0; max-width:66ch; text-wrap:pretty;">Rust backend for retail ERP &mdash; real-time collaborative design tooling, and allocation across the supply chain.</p>
+        <p style="margin:0 0 16px; font-size:13.5px; line-height:1.7; color:#8B93A0; max-width:66ch; text-wrap:pretty;">Rust on the backend for retail ERP &mdash; collaborative design tooling, and allocation across the supply chain.</p>
 
         <div class="card" style="border:1px solid #1D232A; border-radius:8px; background:#0C1015; padding:20px 22px; margin-bottom:12px; overflow:hidden; position:relative;">
           <div class="scan" style="animation-delay:-0.6s; position:absolute; inset:0; background:linear-gradient(90deg,transparent,#9C87ED0d,transparent); pointer-events:none;"></div>
@@ -267,12 +271,12 @@ html, body { max-width: 100%; overflow-x: hidden; }
             <span style="font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:.13em; color:#9C87ED; white-space:nowrap;">RUST &middot; AXUM &middot; CRDT</span>
           </div>
           <ul style="margin:0; padding-left:17px; font-size:13px; line-height:1.72; color:#8B93A0;">
-            <li>Built the real-time layer for a collaborative moodboard where retail merchandising teams create and edit styles together &mdash; several people on one board, no conflict dialog anywhere in the product.</li>
-            <li>Designed a lock-free CRDT sync engine in Rust. State-vector diffing sends a peer only the operations it is missing, so a client returning after an hour offline costs a delta rather than the whole board.</li>
-            <li>Modelled each board as an actor on its own Tokio task, owning its state exclusively. Concurrent edits become a channel send instead of a contended lock, and Rust's <span style="font-family:'JetBrains Mono',monospace; font-size:.92em;">Send</span>/<span style="font-family:'JetBrains Mono',monospace; font-size:.92em;">Sync</span> bounds turn a would-be data race into a compile error rather than a rare production heisenbug.</li>
-            <li>Kept the room registry in a DashMap behind a supervisor that reaps idle sessions, so memory returns to flat after a burst instead of growing with every connection the process has ever seen.</li>
-            <li>Specified a versioned hybrid WebSocket protocol &mdash; JSON control frames for legibility, binary CRDT frames for size &mdash; so old clients keep working across deploys instead of breaking on the first schema change.</li>
-            <li>Bounded the outbound buffer per connection: one slow client degrades only itself, rather than holding the whole room's broadcast.</li>
+            <li>Wrote the real-time layer for a collaborative moodboard, where merchandising teams at retail companies build and edit style boards together.</li>
+            <li>Built the CRDT sync engine. Clients exchange state vectors, so someone coming back after an hour offline pulls the handful of ops they missed instead of refetching the whole board.</li>
+            <li>Each board runs as its own Tokio task that owns its state outright. Edits arrive over a channel, so there is no shared lock in the hot path and no mutex to get wrong.</li>
+            <li>Rooms live in a DashMap with a supervisor that drops idle ones. Memory stays flat instead of climbing with every session the process has ever held.</li>
+            <li>Split the WebSocket protocol in two: JSON for control frames, binary for CRDT payloads, with a version byte so older clients survive a deploy.</li>
+            <li>Capped the send buffer per connection, so one slow client stalls itself rather than the whole room.</li>
           </ul>
         </div>
 
@@ -283,12 +287,12 @@ html, body { max-width: 100%; overflow-x: hidden; }
             <span style="font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:.13em; color:#3FC79A; white-space:nowrap;">PUB/SUB &middot; REDIS</span>
           </div>
           <ul style="margin:0; padding-left:17px; font-size:13px; line-height:1.72; color:#8B93A0;">
-            <li>Built Rust services for an ERP allocation platform, deciding how inventory is distributed across vendors and facilities under capacity constraints.</li>
-            <li>Ran allocation as staged Pub/Sub events rather than one long request, so a run taking minutes survives a deploy and each stage retries independently.</li>
-            <li>Dispatched solver jobs to Gurobi through Cloud Functions behind weighted semaphores, capping concurrent solves so one large tenant's run cannot starve every other.</li>
-            <li>Modelled vendor, facility and capacity schemas in PostgreSQL with sqlx, keeping queries close to the data and the types checked against the schema rather than trusted by convention.</li>
-            <li>Added TTL-scoped Redis caching to the hot read paths, keyed so a write invalidates the entries it actually touched instead of flushing the namespace.</li>
-            <li>Streamed Parquet and CSV feed generation through Arrow and Polars, so peak memory is bounded by batch size rather than by the size of the export.</li>
+            <li>Rust services for an ERP allocation platform, working out how inventory is distributed across vendors and facilities under capacity limits.</li>
+            <li>Allocation runs as staged Pub/Sub events instead of one long request. A run can take minutes, so this way it survives a deploy and each stage retries on its own.</li>
+            <li>Solver jobs go to Gurobi through Cloud Functions behind weighted semaphores, capping how many run at once so one large tenant cannot starve the queue.</li>
+            <li>Modelled the vendor, facility and capacity schemas in Postgres with sqlx.</li>
+            <li>Added Redis caching on the hot reads, with TTLs and keys narrow enough that a write only clears what it actually touched.</li>
+            <li>Feed generation streams through Arrow and Polars, so memory tracks batch size rather than the size of the export.</li>
           </ul>
         </div>
       </div>
@@ -300,13 +304,22 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <span style="font-size:17px; font-weight:600; color:#E7EAEC;">Tata Consultancy Services</span>
           <span class="k-c" style="font-family:'JetBrains Mono',monospace; font-size:11px; animation-delay:-5s;">Software Engineer &middot; Rust Backend</span>
         </div>
-        <ul style="margin:10px 0 0; padding-left:17px; font-size:13.5px; line-height:1.74; color:#8B93A0; max-width:70ch;">
-          <li>Built backend internals in Rust for a large European bank &mdash; onboarding, account management and transaction processing on Axum and Tokio, in a regulated environment where a wrong balance is an incident rather than a bug report.</li>
-          <li>Lifted JWT verification and role checks into Axum middleware composed onto the router once, integrating with internal OAuth2/IAM. A new endpoint cannot forget to be authenticated, because authentication is no longer something a handler opts into.</li>
-          <li>Applied Domain-Driven Design with the domain layer holding no transport or database types, so the compiler enforces the boundary and an infrastructure change cannot quietly reach into a business rule.</li>
-          <li>Drove API versioning and schema evolution so services could deploy independently without breaking consumers &mdash; the constraint that makes a microservice split worth having at all.</li>
-          <li>Wrote Rust CLI tooling and batch jobs for XML, CSV and Avro ingestion, and load-testing harnesses that caught throughput regressions before they reached production.</li>
-        </ul>
+        <p style="margin:0 0 16px; font-size:13.5px; line-height:1.7; color:#8B93A0; max-width:66ch; text-wrap:pretty;">Backend work inside a large European bank's core platform, where the correctness bar is set by regulators rather than by us.</p>
+
+        <div class="card" style="border:1px solid #1D232A; border-radius:8px; background:#0C1015; padding:20px 22px; overflow:hidden; position:relative;">
+          <div class="scan" style="animation-delay:-0.9s; position:absolute; inset:0; background:linear-gradient(90deg,transparent,#E0985A0d,transparent); pointer-events:none;"></div>
+          <div style="display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:8px; margin-bottom:10px;">
+            <span style="font-size:14px; font-weight:600; color:#E7EAEC;">Core banking services</span>
+            <span style="font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:.13em; color:#E0985A; white-space:nowrap;">RUST &middot; AXUM &middot; TOKIO</span>
+          </div>
+          <ul style="margin:0; padding-left:17px; font-size:13px; line-height:1.72; color:#8B93A0;">
+            <li>Backend internals for a large European bank: onboarding, account management and transaction processing, on Axum and Tokio.</li>
+            <li>Moved JWT verification and role checks into Axum middleware on the router, wired to the internal OAuth2/IAM. Handlers stopped carrying their own auth code, and new endpoints got it by default.</li>
+            <li>Kept the domain layer free of transport and database types, so a change to infrastructure could not quietly reach into business logic.</li>
+            <li>Handled API versioning and schema evolution, which is what let the services ship on their own schedules without breaking consumers.</li>
+            <li>Wrote CLI tools and batch jobs for XML, CSV and Avro ingest, plus load-testing harnesses that caught throughput regressions before release.</li>
+          </ul>
+        </div>
       </div>
 
       <div class="cv-when" style="font-family:'JetBrains Mono',monospace; font-size:11px; line-height:1.7; color:#626B74; padding-top:2px;">NOV 2020<br><span style="color:#3B434C;">&mdash; JUN 2022</span></div>
@@ -316,12 +329,22 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <span style="font-size:17px; font-weight:600; color:#E7EAEC;">Tata Consultancy Services</span>
           <span class="k-c" style="font-family:'JetBrains Mono',monospace; font-size:11px; animation-delay:-10s;">Data Engineer</span>
         </div>
-        <ul style="margin:10px 0 0; padding-left:17px; font-size:13.5px; line-height:1.74; color:#8B93A0; max-width:70ch;">
-          <li>Led a Teradata&rarr;Snowflake migration across 12k stored procedures, 30k views and 20k tables. Python tooling derived the dependency graph and validated DDL, so the cutover order was computed rather than guessed at that scale.</li>
-          <li>Rebuilt ingestion on Snowflake-native Snowpipe, Streams and Tasks, cutting end-to-end data latency by over 80% and replacing scheduled batch with continuous load.</li>
-          <li>Automated RBAC and lineage analysis in Python and SQL across Credit Risk and Credit Ratings portfolios, where who-can-see-what is an audit question, not a preference.</li>
-          <li>Worked across the data-engineering toolchain &mdash; Python, Snowflake, Teradata, SQL &mdash; on modelling, ETL validation and schema normalisation.</li>
-        </ul>
+        <p style="margin:0 0 16px; font-size:13.5px; line-height:1.7; color:#8B93A0; max-width:66ch; text-wrap:pretty;">Warehouse migration and pipeline work across Credit Risk and Credit Ratings portfolios.</p>
+
+        <div class="card" style="border:1px solid #1D232A; border-radius:8px; background:#0C1015; padding:20px 22px; overflow:hidden; position:relative;">
+          <div class="scan" style="animation-delay:-2.6s; position:absolute; inset:0; background:linear-gradient(90deg,transparent,#9C87ED0d,transparent); pointer-events:none;"></div>
+          <div style="display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:8px; margin-bottom:10px;">
+            <span style="font-size:14px; font-weight:600; color:#E7EAEC;">Teradata &rarr; Snowflake migration</span>
+            <span style="font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:.13em; color:#9C87ED; white-space:nowrap;">PYTHON &middot; SNOWFLAKE</span>
+          </div>
+          <ul style="margin:0; padding-left:17px; font-size:13px; line-height:1.72; color:#8B93A0;">
+            <li>Led the Teradata to Snowflake migration: 12k stored procedures, 30k views, 20k tables.</li>
+            <li>Built Python tooling that resolved the dependency graph and validated DDL, which is how we knew what order to cut over in at that size.</li>
+            <li>Moved ingestion onto Snowpipe, Streams and Tasks. End-to-end latency dropped by over 80% and the batch windows went away.</li>
+            <li>Automated RBAC and lineage analysis in Python and SQL across the Credit Risk and Credit Ratings portfolios.</li>
+            <li>General data engineering either side of that — Python, Snowflake, Teradata, SQL — on modelling, ETL validation and schema normalisation.</li>
+          </ul>
+        </div>
       </div>
     </div>
 
@@ -333,15 +356,15 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <span style="font-size:15px; font-weight:600; color:#E7EAEC;">marginal</span>
           <span style="font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.16em; color:#9C87ED;">LIVE</span>
         </div>
-        <p style="margin:0; font-size:12.5px; line-height:1.68; color:#8B93A0; text-wrap:pretty;">A self-hosted real-time collaborative notebook. Eleven services, an event-sourced operation log, and a CRDT with per-actor undo.</p>
-        <span style="font-family:'JetBrains Mono',monospace; font-size:10.5px; color:#626B74; margin-top:auto; padding-top:8px;">go &middot; crdt &middot; postgres <span class="arrow" style="display:inline-block;">&rarr;</span></span>
+        <p style="margin:0; font-size:12.5px; line-height:1.68; color:#8B93A0; text-wrap:pretty;">A self-hosted notebook where several people edit the same page at once. Six Go services behind a gateway, an event-sourced operation log the document is rebuilt from, and a CRDT that gives each person their own undo history. Running in production; being ported to Rust module by module.</p>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:10.5px; color:#626B74; margin-top:auto; padding-top:8px;">go &middot; crdt &middot; 13 containers <span class="arrow" style="display:inline-block;">&rarr;</span></span>
       </a>
       <a class="card" href="https://blog.genuinebasil.dev" style="position:relative; border:1px solid #1D232A; border-top:1px solid #3FC79A; border-radius:8px; background:#0C1015; padding:22px; display:flex; flex-direction:column; gap:9px; overflow:hidden; color:inherit;">
         <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
           <span style="font-size:15px; font-weight:600; color:#E7EAEC;">genuine.dev</span>
           <span style="font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.16em; color:#3FC79A;">SHIPPED</span>
         </div>
-        <p style="margin:0; font-size:12.5px; line-height:1.68; color:#8B93A0; text-wrap:pretty;">A DB-backed CMS and technical blog with browser-only authoring, a multi-theme engine, and self-hosted privacy-first analytics.</p>
+        <p style="margin:0; font-size:12.5px; line-height:1.68; color:#8B93A0; text-wrap:pretty;">The CMS and technical blog this site's writing lives in. Rust and Axum for the API, Next.js on the front, and all authoring done in the browser. Themes, newsletter, comments and analytics are self-hosted rather than bolted on.</p>
         <span style="font-family:'JetBrains Mono',monospace; font-size:10.5px; color:#626B74; margin-top:auto; padding-top:8px;">rust &middot; axum &middot; next.js <span class="arrow" style="display:inline-block;">&rarr;</span></span>
       </a>
       <a class="card" href="https://genuinebasil.dev/projects/cairn" style="position:relative; border:1px solid #1D232A; border-top:1px solid #E0985A; border-radius:8px; background:#0C1015; padding:22px; display:flex; flex-direction:column; gap:9px; overflow:hidden; color:inherit;">
@@ -349,7 +372,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <span style="font-size:15px; font-weight:600; color:#E7EAEC;">cairn</span>
           <span style="font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.16em; color:#E0985A;">BUILDING</span>
         </div>
-        <p style="margin:0; font-size:12.5px; line-height:1.68; color:#8B93A0; text-wrap:pretty;">A distributed SQL engine split across services, built so every stage is legible while it runs &mdash; parse tree, join-order DP, plan fragments.</p>
+        <p style="margin:0; font-size:12.5px; line-height:1.68; color:#8B93A0; text-wrap:pretty;">A SQL engine split across services, built so you can watch each stage as it runs: the parse tree, the join-order DP table filling in, and the plan fragments going out to workers.</p>
         <span style="font-family:'JetBrains Mono',monospace; font-size:10.5px; color:#626B74; margin-top:auto; padding-top:8px;">rust &middot; grpc &middot; gcp <span class="arrow" style="display:inline-block;">&rarr;</span></span>
       </a>
     </div>
@@ -368,37 +391,37 @@ html, body { max-width: 100%; overflow-x: hidden; }
       <div class="card" style="position:relative; border:1px solid #1D232A; border-radius:8px; background:#0C1015; padding:20px; display:flex; flex-direction:column; gap:11px; overflow:hidden;">
         <div class="scan" style="animation-delay:0s; position:absolute; inset:0; background:linear-gradient(90deg,transparent,#9C87ED0d,transparent); pointer-events:none;"></div>
         <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.16em; color:#9C87ED;">CONCURRENCY &amp; STATE</div>
-        <p style="margin:0; font-size:12.5px; line-height:1.65; color:#8B93A0; text-wrap:pretty;">Merging concurrent edits with nothing to resolve by hand, and giving each unit of state one owner so a race is a compile error rather than a rare crash.</p>
+        <p style="margin:0; font-size:12.5px; line-height:1.65; color:#8B93A0; text-wrap:pretty;">Real-time collaboration, mostly. CRDTs so several people can edit the same thing without anyone being asked to resolve a conflict, and giving each piece of state a single owner so there is nothing to lock.</p>
         <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:auto; padding-top:4px;"><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">CRDTs</span><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">actor model</span><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">Tokio</span><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">lock-free</span><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">WebSockets</span></div>
       </div>
       <div class="card" style="position:relative; border:1px solid #1D232A; border-radius:8px; background:#0C1015; padding:20px; display:flex; flex-direction:column; gap:11px; overflow:hidden;">
         <div class="scan" style="animation-delay:-1.4s; position:absolute; inset:0; background:linear-gradient(90deg,transparent,#3FC79A0d,transparent); pointer-events:none;"></div>
         <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.16em; color:#3FC79A;">DISTRIBUTED SYSTEMS</div>
-        <p style="margin:0; font-size:12.5px; line-height:1.65; color:#8B93A0; text-wrap:pretty;">An append-only log as the source of truth, projections rebuilt from it, and services that deploy independently because their contracts say so.</p>
+        <p style="margin:0; font-size:12.5px; line-height:1.65; color:#8B93A0; text-wrap:pretty;">Treating an append-only log as the record of what happened and rebuilding read models from it. Versioned contracts between services, so they can be deployed one at a time.</p>
         <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:auto; padding-top:4px;"><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">gRPC</span><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">event-driven</span><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">message queues</span><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">Pub/Sub</span><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">NATS</span><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">DDD</span></div>
       </div>
       <div class="card" style="position:relative; border:1px solid #1D232A; border-radius:8px; background:#0C1015; padding:20px; display:flex; flex-direction:column; gap:11px; overflow:hidden;">
         <div class="scan" style="animation-delay:-2.8s; position:absolute; inset:0; background:linear-gradient(90deg,transparent,#E0985A0d,transparent); pointer-events:none;"></div>
         <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.16em; color:#E0985A;">DATA &amp; STORAGE</div>
-        <p style="margin:0; font-size:12.5px; line-height:1.65; color:#8B93A0; text-wrap:pretty;">Schema designed before the code, indexes chosen off the query plan, and caches keyed so invalidation touches exactly what changed.</p>
+        <p style="margin:0; font-size:12.5px; line-height:1.65; color:#8B93A0; text-wrap:pretty;">Designing the schema before writing the code, choosing indexes off the query plan rather than by guess, and keeping cache keys narrow enough that invalidation stays exact.</p>
         <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:auto; padding-top:4px;"><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">PostgreSQL</span><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">Redis</span><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">sqlx</span><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">Snowflake</span><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">Teradata</span><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">ETL</span></div>
       </div>
       <div class="card" style="position:relative; border:1px solid #1D232A; border-radius:8px; background:#0C1015; padding:20px; display:flex; flex-direction:column; gap:11px; overflow:hidden;">
         <div class="scan" style="animation-delay:-0.7s; position:absolute; inset:0; background:linear-gradient(90deg,transparent,#9C87ED0d,transparent); pointer-events:none;"></div>
         <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.16em; color:#9C87ED;">LANGUAGES</div>
-        <p style="margin:0; font-size:12.5px; line-height:1.65; color:#8B93A0; text-wrap:pretty;">Rust where state has to be held correctly under concurrency; Go and Python where the job is throughput or data; SQL treated as a language, not a string.</p>
+        <p style="margin:0; font-size:12.5px; line-height:1.65; color:#8B93A0; text-wrap:pretty;">Rust for anything that has to hold state correctly while several things touch it at once. Go and Python where the work is throughput or data. SQL written by hand.</p>
         <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:auto; padding-top:4px;"><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">Rust</span><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">Go</span><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">Python</span><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">TypeScript</span><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">SQL</span></div>
       </div>
       <div class="card" style="position:relative; border:1px solid #1D232A; border-radius:8px; background:#0C1015; padding:20px; display:flex; flex-direction:column; gap:11px; overflow:hidden;">
         <div class="scan" style="animation-delay:-2.1s; position:absolute; inset:0; background:linear-gradient(90deg,transparent,#3FC79A0d,transparent); pointer-events:none;"></div>
         <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.16em; color:#3FC79A;">CLOUD &amp; DELIVERY</div>
-        <p style="margin:0; font-size:12.5px; line-height:1.65; color:#8B93A0; text-wrap:pretty;">Reproducible from a commit — infrastructure in version control, images built in CI, and a deploy that is a pull rather than a copy.</p>
+        <p style="margin:0; font-size:12.5px; line-height:1.65; color:#8B93A0; text-wrap:pretty;">Keeping infrastructure in version control and building images in CI, so a deploy pulls a tagged image instead of copying files onto a box and hoping.</p>
         <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:auto; padding-top:4px;"><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">AWS</span><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">GCP</span><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">Docker</span><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">Kubernetes</span><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">Terraform</span><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">CI/CD</span></div>
       </div>
       <div class="card" style="position:relative; border:1px solid #1D232A; border-radius:8px; background:#0C1015; padding:20px; display:flex; flex-direction:column; gap:11px; overflow:hidden;">
         <div class="scan" style="animation-delay:-3.5s; position:absolute; inset:0; background:linear-gradient(90deg,transparent,#E0985A0d,transparent); pointer-events:none;"></div>
         <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.16em; color:#E0985A;">SECURITY</div>
-        <p style="margin:0; font-size:12.5px; line-height:1.65; color:#8B93A0; text-wrap:pretty;">Threat-modelling the boundary rather than the checklist, with enough reversing and internals to know what an attacker actually sees.</p>
+        <p style="margin:0; font-size:12.5px; line-height:1.65; color:#8B93A0; text-wrap:pretty;">Threat modelling at the trust boundary, with enough reverse engineering and OS internals behind it to have a real sense of what is reachable.</p>
         <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:auto; padding-top:4px;"><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">web security</span><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">cryptography</span><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">reverse engineering</span><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">binary exploitation</span><span class="chip" style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:4px; border:1px solid #232A32; background:#0A0E13; color:#8B93A0; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.02em;">OS internals</span></div>
       </div>
     </div>
