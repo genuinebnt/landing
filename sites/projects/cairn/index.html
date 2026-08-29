@@ -199,6 +199,47 @@ html, body { max-width: 100%; overflow-x: hidden; }
   100%     { --mglow-rgb: 224,152,90 }
 }
 .mglow-rekey { animation: mglow-rekey 15s ease-in-out infinite; }
+
+/* The grid lines themselves brighten where the light is. Same 72px lattice as
+   .gridpan, drawn stronger and masked to a soft disc that rides the pointer, so
+   the grid appears lit rather than a second grid appearing on top of it. */
+.gridlit {
+  position: absolute; top: 0; left: 0;
+  width: 620px; height: 620px; margin: -310px 0 0 -310px;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(var(--mglow-rgb), .30) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--mglow-rgb), .30) 1px, transparent 1px);
+  background-size: 72px 72px;
+  -webkit-mask-image: radial-gradient(circle, #000 0%, transparent 68%);
+          mask-image: radial-gradient(circle, #000 0%, transparent 68%);
+  will-change: transform;
+}
+
+/* Selecting text on a dark page otherwise gets the browser's default blue. */
+::selection { background: rgba(var(--mglow-rgb), .3); color: #F2F5F7; }
+
+/* Keyboard focus should be as considered as hover. */
+:focus-visible {
+  outline: 2px solid rgba(var(--mglow-rgb), .8);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+/* A card catches the light where the pointer is over it. --cx/--cy are set on
+   the card itself, so only the hovered one ever repaints. */
+.card { position: relative; }
+.card::after {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .28s ease;
+  background: radial-gradient(260px circle at var(--cx, 50%) var(--cy, 50%),
+                              rgba(var(--mglow-rgb), .09), transparent 70%);
+}
+.card:hover::after { opacity: 1; }
 </style>
 
 </head>
@@ -543,9 +584,16 @@ html, body { max-width: 100%; overflow-x: hidden; }
   el.className = 'mglow';
   el.setAttribute('aria-hidden', 'true');
   el.style.setProperty('--mglow-rgb', '224,152,90');
-  // Inserted before the grid so the grid paints over it. The artboard's own
-  // blobs sit after the grid and stay there — this is the one that goes behind.
+  // Inserted before the grid so the grid paints over it.
   grid.parentNode.insertBefore(el, grid);
+
+  // The lit grid goes *after* .gridpan — it is the highlight on top of the
+  // lattice, where the glow is the light underneath it.
+  var lit = document.createElement('div');
+  lit.className = 'gridlit';
+  lit.setAttribute('aria-hidden', 'true');
+  lit.style.setProperty('--mglow-rgb', '224,152,90');
+  grid.parentNode.insertBefore(lit, grid.nextSibling);
 
   // Start where the page's own accent already sits, so there is no jump before
   // the pointer moves, and none at all on a touch device.
@@ -557,7 +605,9 @@ html, body { max-width: 100%; overflow-x: hidden; }
     // weight rather than something glued to the pointer.
     x += (tx - x) * 0.075;
     y += (ty - y) * 0.075;
-    el.style.transform = 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0)';
+    var t = 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0)';
+    el.style.transform = t;
+    lit.style.transform = t;
     raf = (Math.abs(tx - x) > 0.5 || Math.abs(ty - y) > 0.5) ? requestAnimationFrame(frame) : 0;
   }
   function moveTo(px, py) {
@@ -566,7 +616,17 @@ html, body { max-width: 100%; overflow-x: hidden; }
   }
 
   addEventListener('pointermove', function (e) { moveTo(e.clientX, e.clientY); }, { passive: true });
-  el.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)';
+  el.style.transform = lit.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)';
+
+  // Card spotlight: one delegated listener, and only the card under the
+  // pointer ever gets a custom property written to it.
+  addEventListener('pointermove', function (e) {
+    var card = e.target.closest && e.target.closest('.card');
+    if (!card) return;
+    var r = card.getBoundingClientRect();
+    card.style.setProperty('--cx', (e.clientX - r.left) + 'px');
+    card.style.setProperty('--cy', (e.clientY - r.top) + 'px');
+  }, { passive: true });
 })();
 </script>
 
