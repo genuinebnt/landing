@@ -17,6 +17,7 @@ The artboards' own /projects/* links are therefore correct as drawn and are
 left alone. The live apps live on subdomains (blog./marginal./cairn.) and the
 artboards already link to those absolutely.
 """
+import hashlib
 import re
 import sys
 import pathlib
@@ -267,6 +268,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
 """
 
 APEX = "https://genuinebasil.dev"
+FLUID_URL = "/fluid.js"
 
 # Pages served from their own subdomain rather than a path on the apex. Their
 # root-relative links point at the apex, so they have to be absolutised — on
@@ -315,7 +317,7 @@ def convert(src: pathlib.Path, title: str, desc: str, slug: str) -> str:
     # served from the same root as the script.
     glow_js = GLOW_JS % {
         "dye": ALL_THREE if accent == "rekey" else accent,
-        "fluid_src": f"{APEX}/fluid.js" if slug in OWN_HOST else "/fluid.js",
+        "fluid_src": (APEX + FLUID_URL) if slug in OWN_HOST else FLUID_URL,
     }
 
     if slug in OWN_HOST:
@@ -354,6 +356,29 @@ def convert(src: pathlib.Path, title: str, desc: str, slug: str) -> str:
 """
 
 
+def fluid_asset(srcdir: pathlib.Path, outdir: pathlib.Path) -> str:
+    """Write the simulation under a content-hashed name and return its URL.
+
+    A stable name is a liability here: /fluid.js had already been 301'd to the
+    blog before it existed, Cloudflare cached that redirect, and every later
+    deploy kept serving the redirect to browsers while a cache-busted request
+    returned the file. A hashed name sidesteps a stale entry entirely, and
+    changes on its own whenever the file does.
+    """
+    src = srcdir / "static" / "fluid.js"
+    if not src.is_file():
+        return ""
+    raw = src.read_bytes()
+    name = f"fluid.{hashlib.sha256(raw).hexdigest()[:10]}.js"
+    (outdir / name).write_bytes(raw)
+    # drop older hashes so the output does not accumulate them
+    for old in outdir.glob("fluid.*.js"):
+        if old.name != name:
+            old.unlink()
+    print(f"static: static/fluid.js -> {outdir / name}")
+    return "/" + name
+
+
 def copy_static(srcdir: pathlib.Path, outdir: pathlib.Path) -> None:
     """Mirror static/ into the output tree, preserving structure.
 
@@ -365,7 +390,7 @@ def copy_static(srcdir: pathlib.Path, outdir: pathlib.Path) -> None:
     if not static.is_dir():
         return
     for src in static.rglob("*"):
-        if not src.is_file() or src.name in {"README.md", ".gitkeep"}:
+        if not src.is_file() or src.name in {"README.md", ".gitkeep", "fluid.js"}:
             continue
         dest = outdir / src.relative_to(static)
         dest.parent.mkdir(parents=True, exist_ok=True)
@@ -376,6 +401,9 @@ def copy_static(srcdir: pathlib.Path, outdir: pathlib.Path) -> None:
 def main() -> None:
     srcdir = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else ".")
     outdir = pathlib.Path(sys.argv[2] if len(sys.argv) > 2 else "sites")
+    outdir.mkdir(parents=True, exist_ok=True)
+    global FLUID_URL
+    FLUID_URL = fluid_asset(srcdir, outdir)
 
     for stem, slug, title, desc in PAGES:
         html = convert(srcdir / f"{stem}.dc.html", title, desc, slug)
