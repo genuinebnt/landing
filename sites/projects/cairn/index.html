@@ -109,6 +109,22 @@ document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
    scroll without creating one. */
 html, body { max-width: 100%; overflow-x: clip; }
 
+/* No scrollbars anywhere — the page still scrolls, the gutter just is not
+   drawn. Safe here because the reading-progress bar across the top already
+   shows position, which is the job the scrollbar was doing. Applied to the
+   inner wrappers too, so the wide tables scroll without a bar under them. */
+html { scrollbar-width: none; -ms-overflow-style: none; }
+html::-webkit-scrollbar { width: 0; height: 0; display: none; }
+[style*="overflow-x:auto"], [style*="overflow-x: auto"],
+[style*="overflow:auto"], [style*="overflow: auto"] {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+[style*="overflow-x:auto"]::-webkit-scrollbar,
+[style*="overflow-x: auto"]::-webkit-scrollbar,
+[style*="overflow:auto"]::-webkit-scrollbar,
+[style*="overflow: auto"]::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
 /* The artboards clip horizontal overflow on the page wrapper, which also traps
    position:sticky — the rail was declared sticky and scrolled away regardless.
    The clipping is redundant now that body does it, so the wrapper releases it
