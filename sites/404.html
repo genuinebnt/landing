@@ -300,7 +300,7 @@ html::-webkit-scrollbar { width: 0; height: 0; display: none; }
   position: absolute; inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  background: linear-gradient(90deg, transparent, #E0985A0d, transparent);
+  background: linear-gradient(90deg, transparent, #9C87ED0d, transparent);
   animation: scan 5.5s cubic-bezier(.45, 0, .55, 1) infinite;
 }
 </style>
@@ -369,8 +369,8 @@ html::-webkit-scrollbar { width: 0; height: 0; display: none; }
   // The simulation reads its dye colours off the page wrapper.
   var grid = document.querySelector('.gridpan');
   if (grid && grid.parentNode) {
-    grid.parentNode.setAttribute('data-fluid', '224,152,90');
-    grid.parentNode.setAttribute('data-fluid-light', '154,91,18');
+    grid.parentNode.setAttribute('data-fluid', '224,152,90|156,135,237|63,199,154');
+    grid.parentNode.setAttribute('data-fluid-light', '154,91,18|91,63,209|14,138,99');
   }
 })();
 </script>

@@ -69,6 +69,8 @@ FAVICON = (
 GLOW_ACCENT = {
     ".":                 "rekey",
     "cv":                "rekey",
+    # the 404 belongs to no project, so it carries all three like the landing
+    "404":               "rekey",
     "projects/blog":     "63,199,154",
     "projects/marginal": "156,135,237",
     "projects/cairn":    "224,152,90",
