@@ -217,9 +217,28 @@
   // ── the accents, as dye ────────────────────────────────────────────────
   var ACCENTS = (canvas.parentNode.getAttribute('data-fluid') || '224,152,90')
     .split('|').map(function (s) { return s.split(',').map(Number); });
-  var ai = 0;
+
+  // On the pages whose chrome rekeys amber -> violet -> teal, the dye follows
+  // the same 15s cycle rather than picking its own colour per splat, so the
+  // fluid is always the accent the rest of the page is currently wearing.
+  // These stops mirror the rekey keyframes exactly.
+  var STOPS = [[0,0],[0.26,0],[0.33,1],[0.59,1],[0.66,2],[0.92,2],[1,0]];
+  function accentNow() {
+    if (ACCENTS.length === 1) return ACCENTS[0];
+    var t = (performance.now() % 15000) / 15000;
+    for (var i = 1; i < STOPS.length; i++) {
+      if (t <= STOPS[i][0]) {
+        var a = ACCENTS[STOPS[i-1][1]], b = ACCENTS[STOPS[i][1]];
+        if (a === b) return a;
+        var span = STOPS[i][0] - STOPS[i-1][0];
+        var k = span > 0 ? (t - STOPS[i-1][0]) / span : 0;
+        return [a[0]+(b[0]-a[0])*k, a[1]+(b[1]-a[1])*k, a[2]+(b[2]-a[2])*k];
+      }
+    }
+    return ACCENTS[0];
+  }
   function nextColor(gain) {
-    var c = ACCENTS[ai++ % ACCENTS.length];
+    var c = accentNow();
     return { r: c[0]/255*gain, g: c[1]/255*gain, b: c[2]/255*gain };
   }
 
@@ -240,7 +259,10 @@
 
   var last = performance.now(), pointer = null;
   function step(now) {
-    var dt = Math.min((now - last) / 1000, 0.016); last = now;
+    // The reference runs at real time, which reads as a splash. Stepping the
+    // simulation at a third of it makes the same solver behave like something
+    // viscous — the swirls take seconds to unwind instead of a frame or two.
+    var dt = Math.min((now - last) / 1000, 0.016) * 0.34; last = now;
     resize();
     gl.disable(gl.BLEND);
 
@@ -253,7 +275,7 @@
     gl.uniform2f(P.vorticity.u.texelSize, velocity.texelX, velocity.texelY);
     gl.uniform1i(P.vorticity.u.uVelocity, velocity.read.attach(0));
     gl.uniform1i(P.vorticity.u.uCurl, curlFbo.attach(1));
-    gl.uniform1f(P.vorticity.u.curl, 26);
+    gl.uniform1f(P.vorticity.u.curl, 34);   // stronger curl, so slow motion still swirls
     gl.uniform1f(P.vorticity.u.dt, dt);
     blit(velocity.write); velocity.swap();
 
@@ -286,12 +308,12 @@
     gl.uniform1i(P.advection.u.uVelocity, velocity.read.attach(0));
     gl.uniform1i(P.advection.u.uSource, velocity.read.attach(0));
     gl.uniform1f(P.advection.u.dt, dt);
-    gl.uniform1f(P.advection.u.dissipation, 0.2);
+    gl.uniform1f(P.advection.u.dissipation, 0.08);   // velocity keeps its momentum longer
     blit(velocity.write); velocity.swap();
 
     gl.uniform1i(P.advection.u.uVelocity, velocity.read.attach(0));
     gl.uniform1i(P.advection.u.uSource, dye.read.attach(1));
-    gl.uniform1f(P.advection.u.dissipation, 0.92);   // dye fades, so it never piles up
+    gl.uniform1f(P.advection.u.dissipation, 0.34);   // dye lingers, so a bloom has time to unfold
     blit(dye.write); dye.swap();
 
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
@@ -312,7 +334,7 @@
   addEventListener('pointermove', function (e) {
     var p = norm(e);
     if (pointer) {
-      var dx = (p.x - pointer.x) * 5200, dy = (p.y - pointer.y) * 5200;
+      var dx = (p.x - pointer.x) * 2600, dy = (p.y - pointer.y) * 2600;
       // Only a nudge on hover — the bloom is reserved for a click, so passing
       // the cursor over the page stirs it rather than painting on it.
       if (Math.abs(dx) + Math.abs(dy) > 1)
@@ -325,11 +347,11 @@
     // Clicking a link or a card should do what it says, not bloom.
     if (e.target.closest && e.target.closest('a,button,input,textarea,select,summary')) return;
     var p = norm(e);
-    splat(p.x, p.y, (Math.random() - 0.5) * 900, (Math.random() - 0.5) * 900, nextColor(0.85), 0.5);
+    splat(p.x, p.y, (Math.random() - 0.5) * 380, (Math.random() - 0.5) * 380, nextColor(0.85), 0.62);
     for (var i = 0; i < 4; i++) {
       var a = Math.random() * Math.PI * 2, d = 0.03 + Math.random() * 0.04;
       splat(p.x + Math.cos(a) * d, p.y + Math.sin(a) * d,
-            Math.cos(a) * 1400, Math.sin(a) * 1400, nextColor(0.6), 0.34);
+            Math.cos(a) * 560, Math.sin(a) * 560, nextColor(0.6), 0.42);
     }
   }, { passive: true });
 })();
