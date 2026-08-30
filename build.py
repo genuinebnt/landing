@@ -33,6 +33,8 @@ PAGES = [
      "Cairn — in development."),
     ("Cv",       "cv",                "CV — Genuine Basil NT",
      "Backend engineer — Rust, real-time collaboration, event-driven services."),
+    ("Notfound", "404",               "404 — genuinebasil.dev",
+     "Nothing is routed here."),
 ]
 
 
@@ -376,11 +378,18 @@ def main() -> None:
     outdir = pathlib.Path(sys.argv[2] if len(sys.argv) > 2 else "sites")
 
     for stem, slug, title, desc in PAGES:
-        dest = outdir / slug
-        dest.mkdir(parents=True, exist_ok=True)
         html = convert(srcdir / f"{stem}.dc.html", title, desc, slug)
-        (dest / "index.html").write_text(html, encoding="utf-8")
-        print(f"{stem}.dc.html -> {(dest / 'index.html')}  ({len(html):,} bytes)")
+        if slug == "404":
+            # Caddy's handle_errors rewrites to a file, so this one is not a
+            # directory with an index inside it.
+            out = outdir / "404.html"
+            out.parent.mkdir(parents=True, exist_ok=True)
+        else:
+            dest = outdir / slug
+            dest.mkdir(parents=True, exist_ok=True)
+            out = dest / "index.html"
+        out.write_text(html, encoding="utf-8")
+        print(f"{stem}.dc.html -> {out}  ({len(html):,} bytes)")
 
     copy_static(srcdir, outdir)
 

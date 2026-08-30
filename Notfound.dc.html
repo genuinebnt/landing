@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <style>
+    body { margin:0; background:#0A0C0F; }
+    a { color:#3FC79A; text-decoration:none; }
+    a:hover { color:#6FE0BB; }
+    @keyframes rekey-c  { 0%,26%{color:#E0985A} 33%,59%{color:#9C87ED} 66%,92%{color:#3FC79A} 100%{color:#E0985A} }
+    @keyframes rekey-bg { 0%,26%{background:#E0985A} 33%,59%{background:#9C87ED} 66%,92%{background:#3FC79A} 100%{background:#E0985A} }
+    @keyframes rise  { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes gridpan{ from{background-position:0 0} to{background-position:72px 72px} }
+    @keyframes caret { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+    @keyframes pu    { 0%,100%{opacity:1} 50%{opacity:.35} }
+    .k-c{animation:rekey-c 15s ease-in-out infinite}
+    .k-bg{animation:rekey-bg 15s ease-in-out infinite}
+    .rise{animation:rise .8s cubic-bezier(.22,1,.36,1) both}
+    .gridpan{animation:gridpan 26s linear infinite}
+    .caret{animation:caret 1.05s steps(1) infinite}
+    .pulse{animation:pu 2.4s ease-in-out infinite}
+    .chip{transition:border-color .25s ease,color .25s ease,transform .25s cubic-bezier(.22,1,.36,1)}
+    .chip:hover{border-color:#3E4954;color:#E7EAEC;transform:translateY(-2px)}
+    .lab{transition:color .2s ease}
+  </style>
+</helmet>
+<div style="width:100%; min-height:100vh; box-sizing:border-box; background:#0A0C0F; color:#E7EAEC; font-family:'Space Grotesk',ui-sans-serif,system-ui,sans-serif; position:relative; overflow-x:clip; display:flex; flex-direction:column;">
+
+  <div class="gridpan" style="position:absolute; inset:0; background-image:linear-gradient(#141A20 1px,transparent 1px),linear-gradient(90deg,#141A20 1px,transparent 1px); background-size:72px 72px; opacity:.45; pointer-events:none;"></div>
+
+  <!-- status rail -->
+  <div style="position:relative; z-index:20; border-bottom:1px solid #191E25;">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:24px; height:48px; padding:0 clamp(20px,4vw,56px); font-family:'JetBrains Mono',ui-monospace,monospace; font-size:11px; color:#626B74;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <a href="/" style="display:flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" role="img" aria-label="genuinebasil.dev" style="flex:none; display:block;"><path d="M12 12 6 6.6" stroke="#9C87ED" stroke-width="1.1" stroke-linecap="round" opacity=".5"/><path d="M12 12l6-5.4" stroke="#E0985A" stroke-width="1.1" stroke-linecap="round" opacity=".5"/><path d="M12 12v6.9" stroke="#3FC79A" stroke-width="1.1" stroke-linecap="round" opacity=".5"/><circle cx="6" cy="6.6" r="2.2" fill="#9C87ED"/><circle cx="18" cy="6.6" r="2.2" fill="#E0985A"/><circle cx="12" cy="18.9" r="2.2" fill="#3FC79A"/><circle class="pulse" cx="12" cy="12" r="3" fill="#0A0C0F" stroke="#E7EAEC" stroke-width="1.5"/></svg></a>
+        <a class="lab" href="/" style="color:#9AA3AC; letter-spacing:.06em;">genuinebasil.dev</a>
+        <span style="color:#262C33;">/</span>
+        <span class="k-c" style="letter-spacing:.06em;">404</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:clamp(9px,1.5vw,18px); flex-wrap:wrap;">
+        <a class="lab" href="/projects/cairn" style="color:#E0985A;">cairn</a>
+        <a class="lab" href="/projects/marginal" style="color:#9C87ED;">marginal</a>
+        <a class="lab" href="/projects/blog" style="color:#3FC79A;">blog</a>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px;">
+        <span style="display:flex; align-items:center; gap:6px;"><i class="k-bg" style="width:6px;height:6px;border-radius:50%;display:block;"></i>no route</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="position:relative; z-index:5; flex:1; display:flex; flex-direction:column; justify-content:center; padding:clamp(48px,9vw,120px) clamp(20px,4vw,56px);">
+    <div class="rise" style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.22em; color:#626B74; margin-bottom:18px;">HTTP 404 &middot; NO SUCH PATH</div>
+
+    <h1 class="rise" style="margin:0 0 4px; font-size:clamp(84px,19vw,230px); line-height:.86; letter-spacing:-.05em; font-weight:700; animation-delay:.05s;">
+      4<span class="k-c">0</span>4
+    </h1>
+
+    <p class="rise" style="margin:22px 0 0; max-width:52ch; font-size:clamp(15px,1.9vw,18px); line-height:1.65; color:#8B93A0; text-wrap:pretty; animation-delay:.12s;">
+      Nothing is routed here. The fluid underneath is real though &mdash; it is a Navier&ndash;Stokes solver running on your GPU, and it does not care that the page is missing.
+    </p>
+
+    <div class="rise" style="margin-top:14px; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:#4E5761; animation-delay:.18s;">
+      click anywhere<span class="caret" style="color:#626B74;">&#9608;</span>
+    </div>
+
+    <div class="rise" style="display:flex; flex-wrap:wrap; gap:11px; margin-top:clamp(30px,4vw,44px); animation-delay:.24s;">
+      <a class="chip" href="/" style="display:inline-flex; align-items:center; height:46px; padding:0 21px; border-radius:5px; border:1px solid #262C33; color:#9AA3AC; font-size:14px; font-weight:500;">Home</a>
+      <a class="chip" href="https://blog.genuinebasil.dev" style="display:inline-flex; align-items:center; height:46px; padding:0 21px; border-radius:5px; border:1px solid #262C33; color:#9AA3AC; font-size:14px; font-weight:500;">The blog</a>
+      <a class="chip" href="https://cv.genuinebasil.dev" style="display:inline-flex; align-items:center; height:46px; padding:0 21px; border-radius:5px; border:1px solid #262C33; color:#9AA3AC; font-size:14px; font-weight:500;">CV</a>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

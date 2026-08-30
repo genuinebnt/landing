@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>404 — genuinebasil.dev</title>
+<meta name="description" content="Nothing is routed here.">
+<meta property="og:title" content="404 — genuinebasil.dev">
+<meta property="og:description" content="Nothing is routed here.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://genuinebasil.dev/404">
+<link rel="canonical" href="https://genuinebasil.dev/404">
+<meta property="og:image" content="https://genuinebasil.dev/og/404.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230A0C0F'/%3E%3Ccircle cx='16' cy='16' r='3.2' fill='%23E7EAEC'/%3E%3Ccircle cx='7' cy='9' r='2.6' fill='%239C87ED'/%3E%3Ccircle cx='25' cy='9' r='2.6' fill='%23E0985A'/%3E%3Ccircle cx='16' cy='26' r='2.6' fill='%233FC79A'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <style>
+    body { margin:0; background:#0A0C0F; }
+    a { color:#3FC79A; text-decoration:none; }
+    a:hover { color:#6FE0BB; }
+    @keyframes rekey-c  { 0%,26%{color:#E0985A} 33%,59%{color:#9C87ED} 66%,92%{color:#3FC79A} 100%{color:#E0985A} }
+    @keyframes rekey-bg { 0%,26%{background:#E0985A} 33%,59%{background:#9C87ED} 66%,92%{background:#3FC79A} 100%{background:#E0985A} }
+    @keyframes rise  { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes gridpan{ from{background-position:0 0} to{background-position:72px 72px} }
+    @keyframes caret { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+    @keyframes pu    { 0%,100%{opacity:1} 50%{opacity:.35} }
+    .k-c{animation:rekey-c 15s ease-in-out infinite}
+    .k-bg{animation:rekey-bg 15s ease-in-out infinite}
+    .rise{animation:rise .8s cubic-bezier(.22,1,.36,1) both}
+    .gridpan{animation:gridpan 26s linear infinite}
+    .caret{animation:caret 1.05s steps(1) infinite}
+    .pulse{animation:pu 2.4s ease-in-out infinite}
+    .chip{transition:border-color .25s ease,color .25s ease,transform .25s cubic-bezier(.22,1,.36,1)}
+    .chip:hover{border-color:#3E4954;color:#E7EAEC;transform:translateY(-2px)}
+    .lab{transition:color .2s ease}
+  </style>
+
+<style>
+/* Never let the page itself scroll sideways; wide tables scroll in their own
+   wrapper, which the artboards already mark overflow-x:auto. */
+html, body { max-width: 100%; overflow-x: hidden; }
+
+@media (max-width: 760px) {
+  /* auto-fit only drops empty tracks — it never shrinks one below its floor,
+     so a minmax(420px,1fr) track stays 420px on a 375px phone and everything
+     inside it gets clipped. Collapse these to a single column. */
+  [style*="minmax(420px"], [style*="minmax(340px"], [style*="minmax(300px"],
+  [style*="minmax(280px"], [style*="minmax(260px"], [style*="minmax(230px"],
+  [style*="minmax(150px"],
+  [style*="repeat(3, minmax(0, 1fr))"], [style*="repeat(3,minmax(0,1fr))"],
+  [style*="repeat(2, minmax(0, 1fr))"], [style*="repeat(2,minmax(0,1fr))"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── the status rail ──────────────────────────────────────────────────
+     Three groups: [0] wordmark, [1] six nav links, [2] a decorative status
+     readout. The rail is pinned to 48px with its link group set to wrap, so
+     on a phone the wrapped rows overlap the wordmark. Let it grow, and give
+     each group its own row rather than letting them reflow into each other. */
+  [style*="height:48px"] {
+    height: auto !important;
+    flex-wrap: wrap !important;
+    row-gap: 2px !important;
+    padding-top: 9px !important;
+    padding-bottom: 9px !important;
+    align-items: flex-start !important;
+  }
+  [style*="height:48px"] > div {
+    flex: 0 0 100% !important;
+  }
+  /* Tap targets. 11px links 6px apart are not touchable; this gets each to
+     roughly 32px of vertical hit area without changing the type size much. */
+  [style*="height:48px"] a {
+    padding: 5px 0 !important;
+    font-size: 11.5px !important;
+  }
+  /* The artboard sets a single `gap`, which applies to rows too — combined with
+     the tap padding that opened a large hole between wrapped link rows. Split
+     the two axes: tight rows, comfortable columns. */
+  [style*="height:48px"] > div:nth-child(2) {
+    row-gap: 0 !important;
+    column-gap: 13px !important;
+  }
+
+  /* The CV timeline puts a fixed date column beside the content. On a phone
+     that leaves under 200px for the text, which wraps to three words a line.
+     Stack the date above its entry instead and keep the accent rail. */
+  .cv-tl { grid-template-columns: 1fr !important; }
+  .cv-when {
+    margin-top: 22px;
+    letter-spacing: .12em;
+  }
+  .cv-what {
+    padding-left: 18px !important;
+    padding-bottom: 20px !important;
+  }
+
+  /* Fixed two-up rows (icon gutter + content) read better stacked. */
+  [style*="grid-template-columns:64px 1fr auto"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* On the narrowest screens the rail's third group — the colour legend on the
+   landing page, the phase counter on a project page — is decoration competing
+   with navigation for a whole row. Drop it before dropping any link. */
+/* The collaborator name tags sit beside a caret at a line end. On the narrowest
+   screens there is no line short enough for the tag to fit inside the mockup, so
+   the tag goes and the caret keeps blinking. */
+@media (max-width: 560px) {
+  .cur-tag { display: none; }
+}
+
+@media (max-width: 560px) {
+  [style*="height:48px"] > div:nth-child(3) {
+    display: none !important;
+  }
+}
+
+/* Between phone and desktop a three-up grid is cramped but two fits. */
+@media (min-width: 761px) and (max-width: 1024px) {
+  [style*="repeat(3, minmax(0, 1fr))"], [style*="repeat(3,minmax(0,1fr))"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+</style>
+
+
+<style>
+/* Cross-document view transitions. Every page here is same-origin, so this one
+   rule turns navigation between them into a morph rather than a cut. Browsers
+   without support just navigate as they do today. */
+@view-transition { navigation: auto; }
+
+/* The rail wordmark is on every page, so naming it lets it travel across the
+   navigation instead of cross-fading with the rest. Exactly one element per
+   page may carry a given name — a duplicate makes the browser skip the
+   transition entirely. */
+[style*="height:48px"] > div:first-child { view-transition-name: rail-identity; }
+
+/* .rise fires on load, so every section below the fold finished animating long
+   before anyone scrolled to it. Drive it from the element's own position in the
+   viewport instead. Anything already on screen at load is past the range and
+   renders in its final state.
+
+   Only these one-shot reveals move to a timeline. The looping animations —
+   rekey, pulse, scan, marquee, drift — are deliberately left alone. */
+@supports (animation-timeline: view()) {
+  .rise {
+    animation-timeline: view();
+    animation-range: entry 5% cover 30%;
+  }
+}
+</style>
+
+
+<style>
+@property --mglow-rgb { syntax: "<number>#"; inherits: true; initial-value: 224,152,90 }
+.mfluid { position: absolute; top: 0; left: 0; pointer-events: none; }
+/* The simulation renders at viewport size and is fixed, so the fluid stays with
+   the reader rather than scrolling off the top of a long page. Behind the grid,
+   like everything else in this layer. */
+.mfluid-gl {
+  position: fixed; top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  opacity: .85;
+}
+  background: radial-gradient(circle, rgba(var(--mglow-rgb), .17), transparent 72%); }
+@keyframes mglow-rekey {
+  0%,26%   { --mglow-rgb: 224,152,90 }
+  33%,59%  { --mglow-rgb: 156,135,237 }
+  66%,92%  { --mglow-rgb: 63,199,154 }
+  100%     { --mglow-rgb: 224,152,90 }
+}
+.mfluid-rekey { animation: mglow-rekey 15s ease-in-out infinite; }
+
+
+/* Selecting text on a dark page otherwise gets the browser's default blue. */
+::selection { background: rgba(var(--mglow-rgb), .3); color: #F2F5F7; }
+
+/* Keyboard focus should be as considered as hover. */
+:focus-visible {
+  outline: 2px solid rgba(var(--mglow-rgb), .8);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+/* A card catches the light where the pointer is over it. --cx/--cy are set on
+   the card itself, so only the hovered one ever repaints. */
+.card { position: relative; }
+.card::after {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .28s ease;
+  background: radial-gradient(260px circle at var(--cx, 50%) var(--cy, 50%),
+                              rgba(var(--mglow-rgb), .09), transparent 70%);
+}
+.card:hover::after { opacity: 1; }
+</style>
+
+</head>
+<body>
+<div style="width:100%; min-height:100vh; box-sizing:border-box; background:#0A0C0F; color:#E7EAEC; font-family:'Space Grotesk',ui-sans-serif,system-ui,sans-serif; position:relative; overflow-x:clip; display:flex; flex-direction:column;">
+
+  <div class="gridpan" style="position:absolute; inset:0; background-image:linear-gradient(#141A20 1px,transparent 1px),linear-gradient(90deg,#141A20 1px,transparent 1px); background-size:72px 72px; opacity:.45; pointer-events:none;"></div>
+
+  <!-- status rail -->
+  <div style="position:relative; z-index:20; border-bottom:1px solid #191E25;">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:24px; height:48px; padding:0 clamp(20px,4vw,56px); font-family:'JetBrains Mono',ui-monospace,monospace; font-size:11px; color:#626B74;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <a href="/" style="display:flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" role="img" aria-label="genuinebasil.dev" style="flex:none; display:block;"><path d="M12 12 6 6.6" stroke="#9C87ED" stroke-width="1.1" stroke-linecap="round" opacity=".5"/><path d="M12 12l6-5.4" stroke="#E0985A" stroke-width="1.1" stroke-linecap="round" opacity=".5"/><path d="M12 12v6.9" stroke="#3FC79A" stroke-width="1.1" stroke-linecap="round" opacity=".5"/><circle cx="6" cy="6.6" r="2.2" fill="#9C87ED"/><circle cx="18" cy="6.6" r="2.2" fill="#E0985A"/><circle cx="12" cy="18.9" r="2.2" fill="#3FC79A"/><circle class="pulse" cx="12" cy="12" r="3" fill="#0A0C0F" stroke="#E7EAEC" stroke-width="1.5"/></svg></a>
+        <a class="lab" href="/" style="color:#9AA3AC; letter-spacing:.06em;">genuinebasil.dev</a>
+        <span style="color:#262C33;">/</span>
+        <span class="k-c" style="letter-spacing:.06em;">404</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:clamp(9px,1.5vw,18px); flex-wrap:wrap;">
+        <a class="lab" href="/projects/cairn" style="color:#E0985A;">cairn</a>
+        <a class="lab" href="/projects/marginal" style="color:#9C87ED;">marginal</a>
+        <a class="lab" href="/projects/blog" style="color:#3FC79A;">blog</a>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px;">
+        <span style="display:flex; align-items:center; gap:6px;"><i class="k-bg" style="width:6px;height:6px;border-radius:50%;display:block;"></i>no route</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="position:relative; z-index:5; flex:1; display:flex; flex-direction:column; justify-content:center; padding:clamp(48px,9vw,120px) clamp(20px,4vw,56px);">
+    <div class="rise" style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.22em; color:#626B74; margin-bottom:18px;">HTTP 404 &middot; NO SUCH PATH</div>
+
+    <h1 class="rise" style="margin:0 0 4px; font-size:clamp(84px,19vw,230px); line-height:.86; letter-spacing:-.05em; font-weight:700; animation-delay:.05s;">
+      4<span class="k-c">0</span>4
+    </h1>
+
+    <p class="rise" style="margin:22px 0 0; max-width:52ch; font-size:clamp(15px,1.9vw,18px); line-height:1.65; color:#8B93A0; text-wrap:pretty; animation-delay:.12s;">
+      Nothing is routed here. The fluid underneath is real though &mdash; it is a Navier&ndash;Stokes solver running on your GPU, and it does not care that the page is missing.
+    </p>
+
+    <div class="rise" style="margin-top:14px; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:#4E5761; animation-delay:.18s;">
+      click anywhere<span class="caret" style="color:#626B74;">&#9608;</span>
+    </div>
+
+    <div class="rise" style="display:flex; flex-wrap:wrap; gap:11px; margin-top:clamp(30px,4vw,44px); animation-delay:.24s;">
+      <a class="chip" href="/" style="display:inline-flex; align-items:center; height:46px; padding:0 21px; border-radius:5px; border:1px solid #262C33; color:#9AA3AC; font-size:14px; font-weight:500;">Home</a>
+      <a class="chip" href="https://blog.genuinebasil.dev" style="display:inline-flex; align-items:center; height:46px; padding:0 21px; border-radius:5px; border:1px solid #262C33; color:#9AA3AC; font-size:14px; font-weight:500;">The blog</a>
+      <a class="chip" href="https://cv.genuinebasil.dev" style="display:inline-flex; align-items:center; height:46px; padding:0 21px; border-radius:5px; border:1px solid #262C33; color:#9AA3AC; font-size:14px; font-weight:500;">CV</a>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  // The card spotlight is independent of the fluid and stays whatever happens
+  // to WebGL — one delegated listener, only the hovered card written to.
+  addEventListener('pointermove', function (e) {
+    var card = e.target.closest && e.target.closest('.card');
+    if (!card) return;
+    var r = card.getBoundingClientRect();
+    card.style.setProperty('--cx', (e.clientX - r.left) + 'px');
+    card.style.setProperty('--cy', (e.clientY - r.top) + 'px');
+  }, { passive: true });
+
+  // The simulation reads its dye colours off the page wrapper.
+  var grid = document.querySelector('.gridpan');
+  if (grid && grid.parentNode) grid.parentNode.setAttribute('data-fluid', '224,152,90');
+})();
+</script>
+<script src="/fluid.js" defer></script>
+
+</body>
+</html>
