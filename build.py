@@ -371,10 +371,14 @@ def fluid_asset(srcdir: pathlib.Path, outdir: pathlib.Path) -> str:
     raw = src.read_bytes()
     name = f"fluid.{hashlib.sha256(raw).hexdigest()[:10]}.js"
     (outdir / name).write_bytes(raw)
-    # drop older hashes so the output does not accumulate them
-    for old in outdir.glob("fluid.*.js"):
-        if old.name != name:
-            old.unlink()
+    # Keep the previous builds. Cloudflare serves HTML for a while after a
+    # deploy, and that stale HTML points at the previous hash — deleting it
+    # immediately is what turns a harmless cache lag into a 404. Three is
+    # plenty of overlap at 17KB each.
+    olds = sorted((f for f in outdir.glob("fluid.*.js") if f.name != name),
+                  key=lambda f: f.stat().st_mtime, reverse=True)
+    for stale in olds[2:]:
+        stale.unlink()
     print(f"static: static/fluid.js -> {outdir / name}")
     return "/" + name
 
