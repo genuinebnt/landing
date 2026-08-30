@@ -205,6 +205,8 @@ html, body { max-width: 100%; overflow-x: hidden; }
   [style*="height:48px"] > div:nth-child(3) {
     display: none !important;
   }
+  /* ...but never the theme switcher, which is a control, not decoration. */
+  [style*="height:48px"] > .theme-btn { display: inline-flex !important; }
 }
 
 /* Between phone and desktop a three-up grid is cramped but two fits. */
@@ -337,11 +339,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
         <a class="lab" href="#depth" style="color:var(--c60,#626B74);">Depth</a>
         <a class="lab" href="https://cv.genuinebasil.dev" style="color:var(--c60,#626B74);">CV</a><a class="lab" href="#contact" style="color:var(--c60,#626B74);">Contact</a>
       </div>
-      <div style="display:flex; align-items:center; gap:16px;">
-        <span style="display:flex; align-items:center; gap:6px;"><i style="width:6px;height:6px;border-radius:50%;background:var(--c52,#3FC79A);display:block;"></i>live</span>
-        <span style="display:flex; align-items:center; gap:6px;"><i style="width:6px;height:6px;border-radius:50%;background:var(--c79,#E0985A);display:block;"></i>building</span>
-        <span style="display:flex; align-items:center; gap:6px;"><i style="width:6px;height:6px;border-radius:50%;background:var(--c73,#9C87ED);display:block;"></i>live</span>
-      </div>
+      <div style="display:flex; align-items:center; gap:16px;"></div>
     </div>
     <div style="height:2px; background:var(--c17,#12161B); overflow:hidden;"><div class="k-bg readbar" style="height:2px; width:100%;"></div></div>
   </div>
@@ -613,8 +611,9 @@ var THEME_ICONS = "<svg class=\"sun\" viewBox=\"0 0 24 24\" fill=\"none\" stroke
   // page added later.
   var rail = document.querySelector('[style*="height:48px"]');
   if (!rail) return;
-  var group = rail.lastElementChild;
-  if (!group) return;
+  // Appended to the rail itself, not into a group: the narrow-screen rule
+  // hides the rail's third child, and the button must outlive that.
+  var group = rail;
 
   var btn = document.createElement('button');
   btn.className = 'theme-btn';

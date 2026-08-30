@@ -192,6 +192,8 @@ html, body { max-width: 100%; overflow-x: hidden; }
   [style*="height:48px"] > div:nth-child(3) {
     display: none !important;
   }
+  /* ...but never the theme switcher, which is a control, not decoration. */
+  [style*="height:48px"] > .theme-btn { display: inline-flex !important; }
 }
 
 /* Between phone and desktop a three-up grid is cramped but two fits. */
@@ -720,8 +722,9 @@ var THEME_ICONS = "<svg class=\"sun\" viewBox=\"0 0 24 24\" fill=\"none\" stroke
   // page added later.
   var rail = document.querySelector('[style*="height:48px"]');
   if (!rail) return;
-  var group = rail.lastElementChild;
-  if (!group) return;
+  // Appended to the rail itself, not into a group: the narrow-screen rule
+  // hides the rail's third child, and the button must outlive that.
+  var group = rail;
 
   var btn = document.createElement('button');
   btn.className = 'theme-btn';
