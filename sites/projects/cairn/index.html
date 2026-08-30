@@ -104,7 +104,16 @@ document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
 <style>
 /* Never let the page itself scroll sideways; wide tables scroll in their own
    wrapper, which the artboards already mark overflow-x:auto. */
-html, body { max-width: 100%; overflow-x: hidden; }
+/* clip, not hidden: overflow-x:hidden forces overflow-y to auto, which makes
+   body a scroll container and traps position:sticky. clip stops the sideways
+   scroll without creating one. */
+html, body { max-width: 100%; overflow-x: clip; }
+
+/* The artboards clip horizontal overflow on the page wrapper, which also traps
+   position:sticky — the rail was declared sticky and scrolled away regardless.
+   The clipping is redundant now that body does it, so the wrapper releases it
+   and the rail can actually stick. */
+[style*="overflow-x:clip"] { overflow-x: visible !important; }
 
 @media (max-width: 760px) {
   /* auto-fit only drops empty tracks — it never shrinks one below its floor,
@@ -181,8 +190,14 @@ html, body { max-width: 100%; overflow-x: hidden; }
   [style*="height:48px"] > div:nth-child(3) {
     display: none !important;
   }
-  /* ...but never the theme switcher, which is a control, not decoration. */
-  [style*="height:48px"] > .theme-btn { display: inline-flex !important; }
+  /* ...but never the theme switcher, which is a control, not decoration. It
+     lives inside that group, so hide the group's other children instead. */
+  [style*="height:48px"] > div:nth-child(3):has(> .theme-btn) {
+    display: flex !important;
+  }
+  [style*="height:48px"] > div:nth-child(3) > *:not(.theme-btn) {
+    display: none !important;
+  }
 }
 
 /* Between phone and desktop a three-up grid is cramped but two fits. */
@@ -652,9 +667,10 @@ var THEME_ICONS = "<svg class=\"sun\" viewBox=\"0 0 24 24\" fill=\"none\" stroke
   // page added later.
   var rail = document.querySelector('[style*="height:48px"]');
   if (!rail) return;
-  // Appended to the rail itself, not into a group: the narrow-screen rule
-  // hides the rail's third child, and the button must outlive that.
-  var group = rail;
+  // Into the rail's last group, not the rail itself: the rail is a
+  // space-between flex row, and a fourth direct child pushes the status
+  // cluster off the right edge.
+  var group = rail.lastElementChild || rail;
 
   var btn = document.createElement('button');
   btn.className = 'theme-btn';
