@@ -18,8 +18,11 @@ left alone. The live apps live on subdomains (blog./marginal./cairn.) and the
 artboards already link to those absolutely.
 """
 import hashlib
+import json
 import re
 import sys
+
+from palette_map import PALETTE
 import pathlib
 
 PAGES = [
@@ -205,6 +208,110 @@ MOTION_CSS = """
 </style>
 """
 
+# ── theming ────────────────────────────────────────────────────────────────
+# The artboards write colours as literal hex inside style="" attributes — over
+# a thousand of them — and an inline style beats any stylesheet, so no media
+# query or class can repaint them. Each hex becomes a custom property instead,
+# with the original as the fallback, so a missing token degrades to the dark
+# value rather than to nothing.
+def tokenise(html: str) -> str:
+    """Replace literal hex with var(--cNN, #original)."""
+    def sub(m):
+        hexval = m.group(0).upper()
+        if hexval not in TOKEN:
+            return m.group(0)
+        return f"var({TOKEN[hexval]},{hexval})"
+    # 6 digits not followed by another, so #RRGGBBAA alpha values are untouched
+    return re.sub(r"#[0-9A-Fa-f]{6}(?![0-9A-Fa-f])", sub, html)
+
+
+TOKEN = {h: f"--c{i}" for i, h in enumerate(sorted(PALETTE))}
+
+THEME_CSS = "<style>\n:root{" + "".join(
+    f"{TOKEN[h]}:{h};" for h in sorted(PALETTE)
+) + "}\n[data-theme=\"light\"]{" + "".join(
+    f"{TOKEN[h]}:{PALETTE[h]};" for h in sorted(PALETTE)
+) + "}\n" + """
+/* rgba() literals are not hex, so the tokeniser leaves them be — and a few of
+   them are structural. The sticky rail carries the page colour at 90%, and the
+   panel shadows are near-black, which on paper reads as soot. Both are matched
+   on the literal the artboards wrote. */
+[data-theme="light"] [style*="rgba(10,12,15,.9)"] {
+  background: rgba(244, 245, 246, .86) !important;
+  backdrop-filter: saturate(1.6) blur(6px);
+}
+[data-theme="light"] [style*="rgba(0,0,0,.95)"],
+[data-theme="light"] [style*="rgba(0,0,0,.9)"] {
+  box-shadow: 0 24px 60px -32px rgba(24, 32, 45, .18) !important;
+}
+[data-theme="light"] [style*="rgba(0,0,0,.5)"],
+[data-theme="light"] [style*="rgba(0,0,0,.4)"] {
+  box-shadow: 0 14px 34px -20px rgba(24, 32, 45, .16) !important;
+}
+
+/* The fluid is additive dye designed for near-black. On paper it has to darken
+   what is under it instead of adding light, or it reads as a bleached stain. */
+[data-theme="light"] .mfluid-gl { mix-blend-mode: multiply; opacity: .38; }
+[data-theme="light"] ::selection { background: rgba(var(--mglow-rgb), .22); color: #12151A; }
+.theme-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; flex: none;
+  border: 1px solid var(--c-border, #262C33);
+  border-radius: 5px; background: transparent; cursor: pointer;
+  color: inherit; padding: 0;
+  transition: border-color .2s ease, color .2s ease;
+}
+.theme-btn:hover { color: #E7EAEC; }
+[data-theme="light"] .theme-btn:hover { color: #12151A; }
+.theme-btn svg { width: 14px; height: 14px; }
+.theme-btn .moon { display: none; }
+[data-theme="light"] .theme-btn .moon { display: block; }
+[data-theme="light"] .theme-btn .sun { display: none; }
+</style>"""
+
+THEME_JS_T = """
+<script>
+var THEME_ICONS = %(icons)s;
+(function () {
+  // The rail is the one 48px flex bar on every page; its last cluster is the
+  // right-hand status group. Injecting here rather than editing six artboards
+  // means the button lands in the same place on all of them, including any
+  // page added later.
+  var rail = document.querySelector('[style*="height:48px"]');
+  if (!rail) return;
+  var group = rail.lastElementChild;
+  if (!group) return;
+
+  var btn = document.createElement('button');
+  btn.className = 'theme-btn';
+  btn.type = 'button';
+  btn.setAttribute('aria-label', 'Switch colour theme');
+  btn.title = 'Switch theme';
+  btn.innerHTML = THEME_ICONS;
+  group.appendChild(btn);
+
+  btn.addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('theme', next); } catch (e) {}
+    // the fluid samples the accent per frame, so it picks the change up on its own
+  });
+})();
+</script>
+"""
+
+# Runs before the body paints, so a light-mode reader never sees a dark flash.
+THEME_BOOT = """<script>
+(function(){try{var t=localStorage.getItem('theme');
+if(!t)t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';
+document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
+</script>"""
+
+THEME_ICONS_HTML = ('<svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">'
+             '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>'
+             '<svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'
+             '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>')
+
 RESPONSIVE_CSS = """
 <style>
 /* Never let the page itself scroll sideways; wide tables scroll in their own
@@ -348,6 +455,7 @@ def convert(src: pathlib.Path, title: str, desc: str, slug: str) -> str:
     sweep_css = SWEEP_CSS % {"sweep": sweep_hex}
     # cv is on its own host, so it needs the apex URL; everything else is
     # served from the same root as the script.
+    theme_js = THEME_JS_T % {"icons": json.dumps(THEME_ICONS_HTML)}
     glow_js = GLOW_JS % {
         "dye": ALL_THREE if accent == "rekey" else accent,
         "fluid_src": (APEX + FLUID_URL) if slug in OWN_HOST else FLUID_URL,
@@ -358,6 +466,9 @@ def convert(src: pathlib.Path, title: str, desc: str, slug: str) -> str:
         body = absolutise(body)
     else:
         canonical = f"{APEX}/{slug_url}"
+
+    head = tokenise(head)
+    body = tokenise(body)
 
     return f"""<!doctype html>
 <html lang="en">
@@ -376,7 +487,9 @@ def convert(src: pathlib.Path, title: str, desc: str, slug: str) -> str:
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="{FAVICON}">
+{THEME_BOOT}
 {head}
+{THEME_CSS}
 {RESPONSIVE_CSS}
 {MOTION_CSS}
 {GLOW_CSS}
@@ -385,6 +498,7 @@ def convert(src: pathlib.Path, title: str, desc: str, slug: str) -> str:
 <body>
 {body}
 {glow_js}
+{theme_js}
 </body>
 </html>
 """
