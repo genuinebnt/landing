@@ -201,44 +201,31 @@ html, body { max-width: 100%; overflow-x: hidden; }
 
 <style>
 @property --mglow-rgb { syntax: "<number>#"; inherits: true; initial-value: 224,152,90 }
-.mglow {
-  position: absolute; top: 0; left: 0;
-  /* Wide and short, not a circle. A perfect radial disc reads as a torch
-     pointed at the page; three offset lobes at different sizes read as light
-     falling across a surface, which is what the grid wants behind it. */
-  width: 1180px; height: 660px; margin: -330px 0 0 -590px;
-  pointer-events: none;
-  background:
-    radial-gradient(58% 62% at 36% 44%, rgba(var(--mglow-rgb), .17), transparent 70%),
-    radial-gradient(46% 52% at 66% 60%, rgba(var(--mglow-rgb), .11), transparent 72%),
-    radial-gradient(52% 38% at 56% 26%, rgba(var(--mglow-rgb), .08), transparent 76%);
-  filter: blur(26px);
-  /* transform only — the paint never changes, so the compositor does the work */
+.mfluid { position: absolute; top: 0; left: 0; pointer-events: none; }
+.mfluid i {
+  position: absolute; display: block;
+  border-radius: 50%;
+  /* Heavy blur is what turns three discs into one mass — the lobes never read
+     as separate shapes, only as the body deforming. */
+  filter: blur(44px);
   will-change: transform;
 }
+/* Different sizes and weights so the mass is lopsided; a symmetric one reads
+   as a shape being dragged rather than a liquid finding its level. */
+.mfluid i:nth-child(1) { width: 620px; height: 460px; margin: -230px 0 0 -310px;
+  background: radial-gradient(circle, rgba(var(--mglow-rgb), .19), transparent 68%); }
+.mfluid i:nth-child(2) { width: 460px; height: 560px; margin: -280px 0 0 -230px;
+  background: radial-gradient(circle, rgba(var(--mglow-rgb), .13), transparent 70%); }
+.mfluid i:nth-child(3) { width: 540px; height: 360px; margin: -180px 0 0 -270px;
+  background: radial-gradient(circle, rgba(var(--mglow-rgb), .10), transparent 72%); }
 @keyframes mglow-rekey {
   0%,26%   { --mglow-rgb: 224,152,90 }
   33%,59%  { --mglow-rgb: 156,135,237 }
   66%,92%  { --mglow-rgb: 63,199,154 }
   100%     { --mglow-rgb: 224,152,90 }
 }
-.mglow-rekey { animation: mglow-rekey 15s ease-in-out infinite; }
+.mfluid-rekey { animation: mglow-rekey 15s ease-in-out infinite; }
 
-/* The grid lines themselves brighten where the light is. Same 72px lattice as
-   .gridpan, drawn stronger and masked to a soft disc that rides the pointer, so
-   the grid appears lit rather than a second grid appearing on top of it. */
-.gridlit {
-  position: absolute; top: 0; left: 0;
-  width: 620px; height: 620px; margin: -310px 0 0 -310px;
-  pointer-events: none;
-  background-image:
-    linear-gradient(rgba(var(--mglow-rgb), .30) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(var(--mglow-rgb), .30) 1px, transparent 1px);
-  background-size: 72px 72px;
-  -webkit-mask-image: radial-gradient(circle, #000 0%, transparent 68%);
-          mask-image: radial-gradient(circle, #000 0%, transparent 68%);
-  will-change: transform;
-}
 
 /* Selecting text on a dark page otherwise gets the browser's default blue. */
 ::selection { background: rgba(var(--mglow-rgb), .3); color: #F2F5F7; }
@@ -531,46 +518,50 @@ html, body { max-width: 100%; overflow-x: hidden; }
   var grid = document.querySelector('.gridpan');
   if (!grid || !grid.parentNode) return;
 
-  var el = document.createElement('div');
-  el.className = 'mglow mglow-rekey';
-  el.setAttribute('aria-hidden', 'true');
-  el.style.setProperty('--mglow-rgb', '224,152,90');
-  // Inserted before the grid so the grid paints over it.
-  grid.parentNode.insertBefore(el, grid);
+  var wrap = document.createElement('div');
+  wrap.className = 'mfluid mglow-rekey';
+  wrap.setAttribute('aria-hidden', 'true');
+  wrap.style.setProperty('--mglow-rgb', '224,152,90');
+  wrap.innerHTML = '<i></i><i></i><i></i>';
+  // Before the grid, so the grid always paints over it.
+  grid.parentNode.insertBefore(wrap, grid);
+  var lobes = wrap.children;
 
-  // The lit grid goes *after* .gridpan — it is the highlight on top of the
-  // lattice, where the glow is the light underneath it.
-  var lit = document.createElement('div');
-  lit.className = 'gridlit mglow-rekey';
-  lit.setAttribute('aria-hidden', 'true');
-  lit.style.setProperty('--mglow-rgb', '224,152,90');
-  grid.parentNode.insertBefore(lit, grid.nextSibling);
+  // Each lobe chases the pointer at its own rate. The spread between those
+  // rates is the whole effect: move quickly and they string out behind the
+  // cursor, stop and they pool back together.
+  var cfg = [
+    { k: 0.075, ax: 34, ay: 26, fx: 0.00041, fy: 0.00057, ph: 0 },
+    { k: 0.042, ax: 52, ay: 38, fx: 0.00033, fy: 0.00047, ph: 2.1 },
+    { k: 0.026, ax: 70, ay: 50, fx: 0.00025, fy: 0.00036, ph: 4.2 }
+  ];
+  var tx = innerWidth * 0.56, ty = 320;
+  var st = cfg.map(function () { return { x: tx, y: ty }; });
 
-  // Start where the page's own accent already sits, so there is no jump before
-  // the pointer moves, and none at all on a touch device.
-  var tx = window.innerWidth * 0.56, ty = 300;
-  var x = tx, y = ty, raf = 0;
-
-  function frame() {
-    // Trailing lerp: the glow arrives a beat after the cursor, which reads as
-    // weight rather than something glued to the pointer.
-    x += (tx - x) * 0.075;
-    y += (ty - y) * 0.075;
-    var t = 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0)';
-    el.style.transform = t;
-    lit.style.transform = t;
-    raf = (Math.abs(tx - x) > 0.5 || Math.abs(ty - y) > 0.5) ? requestAnimationFrame(frame) : 0;
+  function frame(now) {
+    for (var i = 0; i < cfg.length; i++) {
+      var c = cfg[i], p = st[i];
+      p.x += (tx - p.x) * c.k;
+      p.y += (ty - p.y) * c.k;
+      // A slow wander of its own, so the mass is never still even when the
+      // pointer is — a liquid at rest still moves.
+      var dx = Math.sin(now * c.fx + c.ph) * c.ax;
+      var dy = Math.cos(now * c.fy + c.ph) * c.ay;
+      lobes[i].style.transform =
+        'translate3d(' + (p.x + dx).toFixed(1) + 'px,' + (p.y + dy).toFixed(1) + 'px,0)';
+    }
+    requestAnimationFrame(frame);
   }
-  function moveTo(px, py) {
-    tx = px; ty = py + window.scrollY;   // page coordinates, not viewport
-    if (!raf) raf = requestAnimationFrame(frame);
-  }
 
-  addEventListener('pointermove', function (e) { moveTo(e.clientX, e.clientY); }, { passive: true });
-  el.style.transform = lit.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)';
+  addEventListener('pointermove', function (e) {
+    tx = e.clientX; ty = e.clientY + scrollY;   // page coords, not viewport
+  }, { passive: true });
 
-  // Card spotlight: one delegated listener, and only the card under the
-  // pointer ever gets a custom property written to it.
+  // rAF parks itself when the tab is hidden, so this costs nothing in the
+  // background; it is three transform writes a frame while visible.
+  requestAnimationFrame(frame);
+
+  // Cards still catch the light where the pointer is over them.
   addEventListener('pointermove', function (e) {
     var card = e.target.closest && e.target.closest('.card');
     if (!card) return;
