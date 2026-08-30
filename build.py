@@ -86,7 +86,8 @@ GLOW_CSS = """
   position: fixed; top: 0; left: 0;
   width: 100%; height: 100%;
   pointer-events: none;
-  opacity: .85;
+  /* It sits behind the text, so it has to lose the contrast fight. */
+  opacity: .5;
 }
   background: radial-gradient(circle, rgba(var(--mglow-rgb), .17), transparent 72%); }
 @keyframes mglow-rekey {

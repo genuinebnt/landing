@@ -1,5 +1,5 @@
 /*
- * Pointer-driven fluid, behind the grid. (v2 - viscous, rekey-tinted)
+ * Pointer-driven fluid, behind the grid. (v4 - liquid, always moving)
  *
  * A GPU Navier-Stokes solver: the pointer injects velocity and dye, and each
  * frame advects them, computes curl and adds vorticity confinement (which is
@@ -91,7 +91,7 @@
     display: frag([
       'VARY_IN vec2 vUv; uniform sampler2D uTexture;',
       'void main(){ vec3 c = TEX(uTexture, vUv).rgb;',
-      '  float a = max(c.r, max(c.g, c.b));',   // dye density drives alpha, so the page shows through
+      '  float a = clamp(pow(max(c.r, max(c.g, c.b)) * 1.7, 0.72), 0.0, 1.0);',
       '  OUT = vec4(c, a); }'].join('\n')),
     splat: frag([
       'VARY_IN vec2 vUv; uniform sampler2D uTarget; uniform float aspectRatio;',
@@ -195,7 +195,7 @@
       swap: function(){ var t=a; a=b; b=t; } };
   }
 
-  var SIM = 128, DYE = 640, filter = supportLinear ? gl.LINEAR : gl.NEAREST;
+  var SIM = 168, DYE = 800, filter = supportLinear ? gl.LINEAR : gl.NEAREST;
   var dye, velocity, divergence, curlFbo, pressure;
   function init() {
     var sw = SIM, sh = Math.round(SIM * (canvas.height / canvas.width)) || SIM;
@@ -257,13 +257,27 @@
     blit(dye.write); dye.swap();
   }
 
-  var last = performance.now(), pointer = null;
+  var last = performance.now(), pointer = null, tick = 0;
+
+  // Left alone, dye dissipates and momentum damps until the canvas is empty and
+  // stays that way. A slow wandering source keeps the field moving for as long
+  // as the page is open — weak enough to read as a current under the page
+  // rather than as something being drawn, and the pointer still dominates it.
+  function ambient(now) {
+    var t = now * 0.000085;
+    var x = 0.5 + Math.cos(t * 1.3) * 0.30;
+    var y = 0.5 + Math.sin(t * 0.87) * 0.26;
+    var a = t * 2.1;
+    splat(x, y, Math.cos(a) * 130, Math.sin(a) * 130, nextColor(0.13), 0.55);
+  }
+
   function step(now) {
     // The reference runs at real time, which reads as a splash. Stepping the
     // simulation at a third of it makes the same solver behave like something
     // viscous — the swirls take seconds to unwind instead of a frame or two.
     var dt = Math.min((now - last) / 1000, 0.016) * 0.34; last = now;
     resize();
+    if ((tick++ % 22) === 0) ambient(now);
     gl.disable(gl.BLEND);
 
     use(P.curl);
@@ -275,7 +289,7 @@
     gl.uniform2f(P.vorticity.u.texelSize, velocity.texelX, velocity.texelY);
     gl.uniform1i(P.vorticity.u.uVelocity, velocity.read.attach(0));
     gl.uniform1i(P.vorticity.u.uCurl, curlFbo.attach(1));
-    gl.uniform1f(P.vorticity.u.curl, 34);   // stronger curl, so slow motion still swirls
+    gl.uniform1f(P.vorticity.u.curl, 44);   // sharp vortices — the difference between curling and billowing
     gl.uniform1f(P.vorticity.u.dt, dt);
     blit(velocity.write); velocity.swap();
 
@@ -292,7 +306,7 @@
     use(P.pressure);
     gl.uniform2f(P.pressure.u.texelSize, velocity.texelX, velocity.texelY);
     gl.uniform1i(P.pressure.u.uDivergence, divergence.attach(0));
-    for (var i = 0; i < 18; i++) {
+    for (var i = 0; i < 26; i++) {
       gl.uniform1i(P.pressure.u.uPressure, pressure.read.attach(1));
       blit(pressure.write); pressure.swap();
     }
@@ -308,12 +322,12 @@
     gl.uniform1i(P.advection.u.uVelocity, velocity.read.attach(0));
     gl.uniform1i(P.advection.u.uSource, velocity.read.attach(0));
     gl.uniform1f(P.advection.u.dt, dt);
-    gl.uniform1f(P.advection.u.dissipation, 0.08);   // velocity keeps its momentum longer
+    gl.uniform1f(P.advection.u.dissipation, 0.015);  // momentum barely damps, so motion carries
     blit(velocity.write); velocity.swap();
 
     gl.uniform1i(P.advection.u.uVelocity, velocity.read.attach(0));
     gl.uniform1i(P.advection.u.uSource, dye.read.attach(1));
-    gl.uniform1f(P.advection.u.dissipation, 0.34);   // dye lingers, so a bloom has time to unfold
+    gl.uniform1f(P.advection.u.dissipation, 0.10);   // dye keeps its volume instead of thinning into a wisp
     blit(dye.write); dye.swap();
 
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
