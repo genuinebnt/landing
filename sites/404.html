@@ -205,6 +205,28 @@ html, body { max-width: 100%; overflow-x: hidden; }
 .card:hover::after { opacity: 1; }
 </style>
 
+
+<style>
+[style*="border:1px solid #1D232A"],
+[style*="border:1px solid #191E25"],
+[style*="border:1px solid #2A323B"],
+[style*="border:1px solid #232A32"],
+[style*="border-top:1px solid #191E25"] { position: relative; }
+
+[style*="border:1px solid #1D232A"]:not(:has(> .scan))::before,
+[style*="border:1px solid #191E25"]:not(:has(> .scan))::before,
+[style*="border:1px solid #2A323B"]:not(:has(> .scan))::before,
+[style*="border:1px solid #232A32"]:not(:has(> .scan))::before,
+[style*="border-top:1px solid #191E25"]:not(:has(> .scan))::before {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, #E0985A0d, transparent);
+  animation: scan 5.5s cubic-bezier(.45, 0, .55, 1) infinite;
+}
+</style>
+
 </head>
 <body>
 <div style="width:100%; min-height:100vh; box-sizing:border-box; background:#0A0C0F; color:#E7EAEC; font-family:'Space Grotesk',ui-sans-serif,system-ui,sans-serif; position:relative; overflow-x:clip; display:flex; flex-direction:column;">

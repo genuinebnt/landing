@@ -75,6 +75,35 @@ GLOW_ACCENT = {
 # so their fluid does too; a project page stays its own colour.
 ALL_THREE = "224,152,90|156,135,237|63,199,154"
 
+# The sweep, applied by what an element *is* rather than what it is called.
+# The artboards give every panel one of a few border colours inline, so those
+# attribute selectors catch panels regardless of tag or class — including the
+# <a class="card"> ones a markup pass keyed on <div> missed, and any panel added
+# later. :has() excludes anything that already carries a .scan child, so the two
+# approaches cannot double up.
+SWEEP_CSS = """
+<style>
+[style*="border:1px solid #1D232A"],
+[style*="border:1px solid #191E25"],
+[style*="border:1px solid #2A323B"],
+[style*="border:1px solid #232A32"],
+[style*="border-top:1px solid #191E25"] { position: relative; }
+
+[style*="border:1px solid #1D232A"]:not(:has(> .scan))::before,
+[style*="border:1px solid #191E25"]:not(:has(> .scan))::before,
+[style*="border:1px solid #2A323B"]:not(:has(> .scan))::before,
+[style*="border:1px solid #232A32"]:not(:has(> .scan))::before,
+[style*="border-top:1px solid #191E25"]:not(:has(> .scan))::before {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, %(sweep)s0d, transparent);
+  animation: scan 5.5s cubic-bezier(.45, 0, .55, 1) infinite;
+}
+</style>
+"""
+
 GLOW_CSS = """
 <style>
 @property --mglow-rgb { syntax: "<number>#"; inherits: true; initial-value: 224,152,90 }
@@ -314,6 +343,9 @@ def convert(src: pathlib.Path, title: str, desc: str, slug: str) -> str:
     og = "landing" if slug == "." else slug.replace("/", "-")
 
     accent = GLOW_ACCENT.get(slug, "224,152,90")
+    sweep_hex = {"63,199,154": "#3FC79A", "156,135,237": "#9C87ED",
+                 "224,152,90": "#E0985A"}.get(accent, "#9C87ED")
+    sweep_css = SWEEP_CSS % {"sweep": sweep_hex}
     # cv is on its own host, so it needs the apex URL; everything else is
     # served from the same root as the script.
     glow_js = GLOW_JS % {
@@ -348,6 +380,7 @@ def convert(src: pathlib.Path, title: str, desc: str, slug: str) -> str:
 {RESPONSIVE_CSS}
 {MOTION_CSS}
 {GLOW_CSS}
+{sweep_css}
 </head>
 <body>
 {body}
