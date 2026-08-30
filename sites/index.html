@@ -207,17 +207,17 @@ html, body { max-width: 100%; overflow-x: hidden; }
   border-radius: 50%;
   /* Heavy blur is what turns three discs into one mass — the lobes never read
      as separate shapes, only as the body deforming. */
-  filter: blur(44px);
+  filter: blur(38px);
   will-change: transform;
 }
 /* Different sizes and weights so the mass is lopsided; a symmetric one reads
    as a shape being dragged rather than a liquid finding its level. */
 .mfluid i:nth-child(1) { width: 620px; height: 460px; margin: -230px 0 0 -310px;
-  background: radial-gradient(circle, rgba(var(--mglow-rgb), .19), transparent 68%); }
+  background: radial-gradient(circle, rgba(var(--mglow-rgb), .30), transparent 68%); }
 .mfluid i:nth-child(2) { width: 460px; height: 560px; margin: -280px 0 0 -230px;
-  background: radial-gradient(circle, rgba(var(--mglow-rgb), .13), transparent 70%); }
+  background: radial-gradient(circle, rgba(var(--mglow-rgb), .22), transparent 70%); }
 .mfluid i:nth-child(3) { width: 540px; height: 360px; margin: -180px 0 0 -270px;
-  background: radial-gradient(circle, rgba(var(--mglow-rgb), .10), transparent 72%); }
+  background: radial-gradient(circle, rgba(var(--mglow-rgb), .17), transparent 72%); }
 @keyframes mglow-rekey {
   0%,26%   { --mglow-rgb: 224,152,90 }
   33%,59%  { --mglow-rgb: 156,135,237 }
@@ -538,45 +538,56 @@ html, body { max-width: 100%; overflow-x: hidden; }
   wrap.setAttribute('aria-hidden', 'true');
   wrap.style.setProperty('--mglow-rgb', '224,152,90');
   wrap.innerHTML = '<i></i><i></i><i></i>';
-  // Before the grid, so the grid always paints over it.
   grid.parentNode.insertBefore(wrap, grid);
   var lobes = wrap.children;
 
-  // Each lobe chases the pointer at its own rate. The spread between those
-  // rates is the whole effect: move quickly and they string out behind the
-  // cursor, stop and they pool back together.
+  // The mass does not travel to the pointer. Each lobe has a home it sits in,
+  // and the pointer only pulls on it — hard when it is close, not at all when
+  // it is far. So the field stays where it is and *bulges* toward you, which is
+  // what a liquid under glass does; chasing the cursor is what a sticker does.
   var cfg = [
-    { k: 0.075, ax: 34, ay: 26, fx: 0.00041, fy: 0.00057, ph: 0 },
-    { k: 0.042, ax: 52, ay: 38, fx: 0.00033, fy: 0.00047, ph: 2.1 },
-    { k: 0.026, ax: 70, ay: 50, fx: 0.00025, fy: 0.00036, ph: 4.2 }
+    { hx: 0.32, hy: 0.34, pull: 210, reach: 520, ax: 30, ay: 22, fx: 0.00041, fy: 0.00057, ph: 0   },
+    { hx: 0.58, hy: 0.26, pull: 150, reach: 620, ax: 44, ay: 32, fx: 0.00033, fy: 0.00047, ph: 2.1 },
+    { hx: 0.46, hy: 0.58, pull: 110, reach: 700, ax: 58, ay: 42, fx: 0.00025, fy: 0.00036, ph: 4.2 }
   ];
-  var tx = innerWidth * 0.56, ty = 320;
-  var st = cfg.map(function () { return { x: tx, y: ty }; });
+  var px = null, py = null;                       // pointer, page coords
+  var st = cfg.map(function () { return { x: 0, y: 0 }; });
 
   function frame(now) {
+    var vw = innerWidth, vh = innerHeight, top = scrollY;
     for (var i = 0; i < cfg.length; i++) {
       var c = cfg[i], p = st[i];
-      p.x += (tx - p.x) * c.k;
-      p.y += (ty - p.y) * c.k;
-      // A slow wander of its own, so the mass is never still even when the
-      // pointer is — a liquid at rest still moves.
-      var dx = Math.sin(now * c.fx + c.ph) * c.ax;
-      var dy = Math.cos(now * c.fy + c.ph) * c.ay;
+      // home drifts on its own slow sine, so the field breathes at rest
+      var hx = c.hx * vw + Math.sin(now * c.fx + c.ph) * c.ax;
+      var hy = top + c.hy * vh + Math.cos(now * c.fy + c.ph) * c.ay;
+
+      var gx = hx, gy = hy;
+      if (px !== null) {
+        var dx = px - hx, dy = py - hy;
+        var d = Math.hypot(dx, dy);
+        if (d > 1 && d < c.reach) {
+          // falloff: full lean when the pointer is on top of the lobe, nothing
+          // at the edge of its reach — squared so the influence is local
+          var f = 1 - d / c.reach; f *= f;
+          gx += (dx / d) * c.pull * f;
+          gy += (dy / d) * c.pull * f;
+        }
+      }
+      p.x += (gx - p.x) * 0.06;   // viscosity: it eases into the new shape
+      p.y += (gy - p.y) * 0.06;
       lobes[i].style.transform =
-        'translate3d(' + (p.x + dx).toFixed(1) + 'px,' + (p.y + dy).toFixed(1) + 'px,0)';
+        'translate3d(' + p.x.toFixed(1) + 'px,' + p.y.toFixed(1) + 'px,0)';
     }
     requestAnimationFrame(frame);
   }
 
   addEventListener('pointermove', function (e) {
-    tx = e.clientX; ty = e.clientY + scrollY;   // page coords, not viewport
+    px = e.clientX; py = e.clientY + scrollY;
   }, { passive: true });
+  addEventListener('pointerleave', function () { px = py = null; }, { passive: true });
 
-  // rAF parks itself when the tab is hidden, so this costs nothing in the
-  // background; it is three transform writes a frame while visible.
   requestAnimationFrame(frame);
 
-  // Cards still catch the light where the pointer is over them.
   addEventListener('pointermove', function (e) {
     var card = e.target.closest && e.target.closest('.card');
     if (!card) return;
