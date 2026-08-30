@@ -1,5 +1,5 @@
 /*
- * Pointer-driven fluid, behind the grid. (v4 - liquid, always moving)
+ * Pointer-driven fluid, behind the grid. (v6 - water, in either theme)
  *
  * A GPU Navier-Stokes solver: the pointer injects velocity and dye, and each
  * frame advects them, computes curl and adds vorticity confinement (which is
@@ -215,8 +215,21 @@
   addEventListener('resize', resize, { passive: true });
 
   // ── the accents, as dye ────────────────────────────────────────────────
-  var ACCENTS = (canvas.parentNode.getAttribute('data-fluid') || '224,152,90')
-    .split('|').map(function (s) { return s.split(',').map(Number); });
+  // Two dye sets: one built to glow on near-black, one to read as ink on
+  // paper. Swapped live when the theme does — the same colours under a light
+  // background come out as grey sludge.
+  function parseDye(attr, fallback) {
+    return (canvas.parentNode.getAttribute(attr) || fallback)
+      .split('|').map(function (s) { return s.split(',').map(Number); });
+  }
+  var DYE_DARK  = parseDye('data-fluid', '224,152,90');
+  var DYE_LIGHT = parseDye('data-fluid-light', '154,91,18');
+  var ACCENTS = DYE_DARK;
+  function syncTheme() {
+    ACCENTS = document.documentElement.getAttribute('data-theme') === 'light' ? DYE_LIGHT : DYE_DARK;
+  }
+  syncTheme();
+  new MutationObserver(syncTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
   // On the pages whose chrome rekeys amber -> violet -> teal, the dye follows
   // the same 15s cycle rather than picking its own colour per splat, so the
@@ -237,9 +250,16 @@
     }
     return ACCENTS[0];
   }
+  // Splats add into the dye buffer, so repeated injection saturates a channel
+  // to 1.0 and clamps — which on near-black is the glow the effect wants, and
+  // on paper is a highlighter. Light mode injects far less and clears faster,
+  // so the field settles as a tint rather than climbing to neon.
+  function isLight() { return document.documentElement.getAttribute('data-theme') === 'light'; }
+  function gainScale() { return isLight() ? 0.30 : 1; }
+
   function nextColor(gain) {
-    var c = accentNow();
-    return { r: c[0]/255*gain, g: c[1]/255*gain, b: c[2]/255*gain };
+    var c = accentNow(), g = gain * gainScale();
+    return { r: c[0]/255*g, g: c[1]/255*g, b: c[2]/255*g };
   }
 
   function use(prog) { gl.useProgram(prog.p); }
@@ -268,7 +288,7 @@
     var x = 0.5 + Math.cos(t * 1.3) * 0.30;
     var y = 0.5 + Math.sin(t * 0.87) * 0.26;
     var a = t * 2.1;
-    splat(x, y, Math.cos(a) * 130, Math.sin(a) * 130, nextColor(0.055), 0.55);
+    splat(x, y, Math.cos(a) * 90, Math.sin(a) * 90, nextColor(0.11), 0.8);
   }
 
   function step(now) {
@@ -289,7 +309,7 @@
     gl.uniform2f(P.vorticity.u.texelSize, velocity.texelX, velocity.texelY);
     gl.uniform1i(P.vorticity.u.uVelocity, velocity.read.attach(0));
     gl.uniform1i(P.vorticity.u.uCurl, curlFbo.attach(1));
-    gl.uniform1f(P.vorticity.u.curl, 44);   // sharp vortices — the difference between curling and billowing
+    gl.uniform1f(P.vorticity.u.curl, 18);   // low: a hand on water slides a sheet rather than spinning eddies
     gl.uniform1f(P.vorticity.u.dt, dt);
     blit(velocity.write); velocity.swap();
 
@@ -322,12 +342,12 @@
     gl.uniform1i(P.advection.u.uVelocity, velocity.read.attach(0));
     gl.uniform1i(P.advection.u.uSource, velocity.read.attach(0));
     gl.uniform1f(P.advection.u.dt, dt);
-    gl.uniform1f(P.advection.u.dissipation, 0.015);  // momentum barely damps, so motion carries
+    gl.uniform1f(P.advection.u.dissipation, 0.055);  // gently damped, so the push glides instead of churning
     blit(velocity.write); velocity.swap();
 
     gl.uniform1i(P.advection.u.uVelocity, velocity.read.attach(0));
     gl.uniform1i(P.advection.u.uSource, dye.read.attach(1));
-    gl.uniform1f(P.advection.u.dissipation, 0.26);   // keeps its body, but reaches a steady state
+    gl.uniform1f(P.advection.u.dissipation, isLight() ? 0.62 : 0.16);   // paper needs it cleared faster or it stains
     blit(dye.write); dye.swap();
 
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
@@ -348,11 +368,11 @@
   addEventListener('pointermove', function (e) {
     var p = norm(e);
     if (pointer) {
-      var dx = (p.x - pointer.x) * 2600, dy = (p.y - pointer.y) * 2600;
+      var dx = (p.x - pointer.x) * 1500, dy = (p.y - pointer.y) * 1500;
       // Only a nudge on hover — the bloom is reserved for a click, so passing
       // the cursor over the page stirs it rather than painting on it.
       if (Math.abs(dx) + Math.abs(dy) > 1)
-        splat(p.x, p.y, dx, dy, nextColor(0.06), 0.16);
+        splat(p.x, p.y, dx, dy, nextColor(0.13), 0.40);
     }
     pointer = p;
   }, { passive: true });
@@ -361,11 +381,11 @@
     // Clicking a link or a card should do what it says, not bloom.
     if (e.target.closest && e.target.closest('a,button,input,textarea,select,summary')) return;
     var p = norm(e);
-    splat(p.x, p.y, (Math.random() - 0.5) * 380, (Math.random() - 0.5) * 380, nextColor(0.85), 0.62);
+    splat(p.x, p.y, (Math.random() - 0.5) * 240, (Math.random() - 0.5) * 240, nextColor(0.8), 0.9);
     for (var i = 0; i < 4; i++) {
       var a = Math.random() * Math.PI * 2, d = 0.03 + Math.random() * 0.04;
       splat(p.x + Math.cos(a) * d, p.y + Math.sin(a) * d,
-            Math.cos(a) * 560, Math.sin(a) * 560, nextColor(0.6), 0.42);
+            Math.cos(a) * 320, Math.sin(a) * 320, nextColor(0.5), 0.6);
     }
   }, { passive: true });
 })();

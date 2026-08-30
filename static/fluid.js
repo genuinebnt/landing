@@ -1,5 +1,5 @@
 /*
- * Pointer-driven fluid, behind the grid. (v5 - water under a hand)
+ * Pointer-driven fluid, behind the grid. (v6 - water, in either theme)
  *
  * A GPU Navier-Stokes solver: the pointer injects velocity and dye, and each
  * frame advects them, computes curl and adds vorticity confinement (which is
@@ -215,8 +215,21 @@
   addEventListener('resize', resize, { passive: true });
 
   // ── the accents, as dye ────────────────────────────────────────────────
-  var ACCENTS = (canvas.parentNode.getAttribute('data-fluid') || '224,152,90')
-    .split('|').map(function (s) { return s.split(',').map(Number); });
+  // Two dye sets: one built to glow on near-black, one to read as ink on
+  // paper. Swapped live when the theme does — the same colours under a light
+  // background come out as grey sludge.
+  function parseDye(attr, fallback) {
+    return (canvas.parentNode.getAttribute(attr) || fallback)
+      .split('|').map(function (s) { return s.split(',').map(Number); });
+  }
+  var DYE_DARK  = parseDye('data-fluid', '224,152,90');
+  var DYE_LIGHT = parseDye('data-fluid-light', '154,91,18');
+  var ACCENTS = DYE_DARK;
+  function syncTheme() {
+    ACCENTS = document.documentElement.getAttribute('data-theme') === 'light' ? DYE_LIGHT : DYE_DARK;
+  }
+  syncTheme();
+  new MutationObserver(syncTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
   // On the pages whose chrome rekeys amber -> violet -> teal, the dye follows
   // the same 15s cycle rather than picking its own colour per splat, so the
@@ -237,9 +250,16 @@
     }
     return ACCENTS[0];
   }
+  // Splats add into the dye buffer, so repeated injection saturates a channel
+  // to 1.0 and clamps — which on near-black is the glow the effect wants, and
+  // on paper is a highlighter. Light mode injects far less and clears faster,
+  // so the field settles as a tint rather than climbing to neon.
+  function isLight() { return document.documentElement.getAttribute('data-theme') === 'light'; }
+  function gainScale() { return isLight() ? 0.30 : 1; }
+
   function nextColor(gain) {
-    var c = accentNow();
-    return { r: c[0]/255*gain, g: c[1]/255*gain, b: c[2]/255*gain };
+    var c = accentNow(), g = gain * gainScale();
+    return { r: c[0]/255*g, g: c[1]/255*g, b: c[2]/255*g };
   }
 
   function use(prog) { gl.useProgram(prog.p); }
@@ -327,7 +347,7 @@
 
     gl.uniform1i(P.advection.u.uVelocity, velocity.read.attach(0));
     gl.uniform1i(P.advection.u.uSource, dye.read.attach(1));
-    gl.uniform1f(P.advection.u.dissipation, 0.16);   // keeps its body, but reaches a steady state
+    gl.uniform1f(P.advection.u.dissipation, isLight() ? 0.62 : 0.16);   // paper needs it cleared faster or it stains
     blit(dye.write); dye.swap();
 
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);

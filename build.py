@@ -77,6 +77,14 @@ GLOW_ACCENT = {
 # Dye colours for the fluid. The landing and CV pages carry all three systems,
 # so their fluid does too; a project page stays its own colour.
 ALL_THREE = "224,152,90|156,135,237|63,199,154"
+# The dark accents are built to glow on near-black; on paper they have to be
+# ink instead, so light mode gets the light palette's versions.
+ALL_THREE_LIGHT = "154,91,18|91,63,209|14,138,99"
+LIGHT_DYE = {
+    "63,199,154":  "14,138,99",
+    "156,135,237": "91,63,209",
+    "224,152,90":  "154,91,18",
+}
 
 # The sweep, applied by what an element *is* rather than what it is called.
 # The artboards give every panel one of a few border colours inline, so those
@@ -173,7 +181,10 @@ GLOW_JS = """
 
   // The simulation reads its dye colours off the page wrapper.
   var grid = document.querySelector('.gridpan');
-  if (grid && grid.parentNode) grid.parentNode.setAttribute('data-fluid', '%(dye)s');
+  if (grid && grid.parentNode) {
+    grid.parentNode.setAttribute('data-fluid', '%(dye)s');
+    grid.parentNode.setAttribute('data-fluid-light', '%(dye_light)s');
+  }
 })();
 </script>
 <script src="%(fluid_src)s" defer></script>
@@ -251,7 +262,7 @@ THEME_CSS = "<style>\n:root{" + "".join(
 
 /* The fluid is additive dye designed for near-black. On paper it has to darken
    what is under it instead of adding light, or it reads as a bleached stain. */
-[data-theme="light"] .mfluid-gl { mix-blend-mode: multiply; opacity: .38; }
+[data-theme="light"] .mfluid-gl { opacity: .42; }
 [data-theme="light"] ::selection { background: rgba(var(--mglow-rgb), .22); color: #12151A; }
 .theme-btn {
   display: inline-flex; align-items: center; justify-content: center;
@@ -458,6 +469,7 @@ def convert(src: pathlib.Path, title: str, desc: str, slug: str) -> str:
     theme_js = THEME_JS_T % {"icons": json.dumps(THEME_ICONS_HTML)}
     glow_js = GLOW_JS % {
         "dye": ALL_THREE if accent == "rekey" else accent,
+        "dye_light": ALL_THREE_LIGHT if accent == "rekey" else LIGHT_DYE.get(accent, accent),
         "fluid_src": (APEX + FLUID_URL) if slug in OWN_HOST else FLUID_URL,
     }
 

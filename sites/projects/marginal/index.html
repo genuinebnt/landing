@@ -94,7 +94,7 @@ document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
 
 /* The fluid is additive dye designed for near-black. On paper it has to darken
    what is under it instead of adding light, or it reads as a bleached stain. */
-[data-theme="light"] .mfluid-gl { mix-blend-mode: multiply; opacity: .38; }
+[data-theme="light"] .mfluid-gl { opacity: .42; }
 [data-theme="light"] ::selection { background: rgba(var(--mglow-rgb), .22); color: #12151A; }
 .theme-btn {
   display: inline-flex; align-items: center; justify-content: center;
@@ -702,10 +702,13 @@ html, body { max-width: 100%; overflow-x: hidden; }
 
   // The simulation reads its dye colours off the page wrapper.
   var grid = document.querySelector('.gridpan');
-  if (grid && grid.parentNode) grid.parentNode.setAttribute('data-fluid', '156,135,237');
+  if (grid && grid.parentNode) {
+    grid.parentNode.setAttribute('data-fluid', '156,135,237');
+    grid.parentNode.setAttribute('data-fluid-light', '91,63,209');
+  }
 })();
 </script>
-<script src="/fluid.bb1a11b842.js" defer></script>
+<script src="/fluid.70ebe9701f.js" defer></script>
 
 
 <script>
